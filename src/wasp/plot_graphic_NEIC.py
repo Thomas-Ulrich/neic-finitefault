@@ -131,14 +131,15 @@ def plot_ffm_sol(
     directory = pathlib.Path(directory)
     segments = segments_data["segments"]
 
-    if not (directory / "velmodel_data.json").exists():
+    path_velmodel = os.path.join(directory, "velmodel_data.json")
+    if not path_velmodel.exists():
         vel_model = mv.select_velmodel(
             tensor_info=tensor_info,
             default_dirs=default_directories,
             directory=directory,
         )
     else:
-        with open(directory / "velmodel_data.json") as v:
+        with open(path_velmodel) as v:
             vel_model = json.load(v)
 
     _plot_vel_model(vel_model, directory=directory)
