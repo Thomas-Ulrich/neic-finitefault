@@ -245,6 +245,15 @@ contains
          else
             t = t*cooling_rate
          end if
+         if (mod(i, 25) == 0 .and. i > 0) then
+            if (many_events) then
+               call print_summary2(slip, rake, rupt_time, t_rise, t_fall, static, &
+                &  imagery, get_coeff)
+            else
+               call print_summary(slip, rake, rupt_time, t_rise, t_fall, static, &
+                &  imagery, get_coeff)
+            endif
+         endif
       end do
       get_coeff = .False.
       if (many_events) then
