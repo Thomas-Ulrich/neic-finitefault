@@ -572,7 +572,7 @@ contains
    complex :: kahan_y, kahan_t, kahan_c
    complex sour_sub(npth), green_s(inptd, 10), www, wss, z0
 
-   character(len=250) modes
+   character(len=300) modes
    character(len=300) surf_gf_bank
    character(len=6) sta_name(nnsta)
 

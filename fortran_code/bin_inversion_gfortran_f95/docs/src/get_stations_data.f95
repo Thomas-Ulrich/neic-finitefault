@@ -483,7 +483,7 @@ contains
    &  obse(n_data, nnsta), dip, rake, theta, tlen
    character(len=40) string
    character(len=6) sta_name(nnsta)
-   character(len=250) modes
+   character(len=300) modes
 
    n_chan3 = 0
 !

@@ -305,7 +305,7 @@ contains
    &  dip, rake, theta
    character(len=20) filename
 !   character(len=6) sta_name(nnsta)
-   character(len=250) modes
+   character(len=300) modes
 
    n_chan3 = 0
 !
