@@ -404,16 +404,25 @@ def __litho_crust_velmodel(tensor_info: dict, default_dirs: dict) -> dict:
     ]
 
     def extract_profile(var_name: str) -> np.ndarray:
-        data = np.array([vars[f"{layer}_{var_name}"][index_lat, index_lon] for layer in layers])
+        data = np.array(
+            [vars[f"{layer}_{var_name}"][index_lat, index_lon] for layer in layers]
+        )
         return data[~np.isnan(data)]
 
     profiles = {}
-    new_names = {"vp": "p_vel", "vs":"s_vel", "density":"dens", "depth":"depth", "qmu": "qa"}
+    new_names = {
+        "vp": "p_vel",
+        "vs": "s_vel",
+        "density": "dens",
+        "depth": "depth",
+        "qmu": "qa",
+    }
     for var in ["vp", "vs", "density", "depth", "qmu"]:
         var_new = new_names[var]
         profiles[var_new] = extract_profile(var)
 
     profiles["qb"] = 2.0 * profiles["qa"]
+    profiles["density"] *= 0.001
 
     mask = profiles["s_vel"] > 0.1
 
