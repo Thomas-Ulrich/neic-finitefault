@@ -187,6 +187,8 @@ def run(
             directory=directory,
         )
     if modelling_routine == ModellingRoutine.forward_model:
+        if option is None:
+            raise ValueError("Missing option '-o' / '--option'")
         forward_modelling(
             tensor_info=tensor_info,
             data_type=chosen_data_types,
