@@ -1,6 +1,6 @@
 MY_BIN=.
 
-modules = constants.o modelling_inputs.o model_parameters.o wavelet_param.o wavelets.o get_stations_data.o retrieve_surf_gf.o rad_pattern.o geodesics.o rise_time.o retrieve_gf.o save_forward.o
+modules = constants.o modelling_inputs.o model_parameters.o wavelet_param.o wavelets.o get_stations_data.o retrieve_surf_gf.o rad_pattern.o geodesics.o rise_time.o retrieve_gf.o misfit_eval.o save_forward.o
 modules2 = $(modules) static_data.o imagery_data.o misfit_eval.o regularization.o random_gen.o annealing.o annealing_static.o
 
 #Linux

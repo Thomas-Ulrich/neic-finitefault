@@ -8,6 +8,8 @@ module save_forward
    use retrieve_gf, only : green_stk, green_dip
    use rise_time, only : source, fourier_asym_cosine, realtr, fft
    use wavelets, only : wavelet_syn
+   use misfit_eval, only : misfit_channel
+   use get_stations_data, only : get_options
    implicit none
    integer, parameter :: nnsta_tele = 80
    integer :: nxs_sub(max_seg), nys_sub(max_seg), windows, segments, subfaults
@@ -16,6 +18,8 @@ module save_forward
    character(len=15) :: sta_name(max_stations)
    character(len=3) :: component(max_stations)
 
+   real :: weight(max_stations), wavelet_weight(12, max_stations)
+   integer :: misfit_type(12, max_stations), t_min(max_stations), t_max(max_stations)
 
 contains
 
@@ -35,6 +39,7 @@ contains
    integer :: jmin, jmax, channels
    call get_data_param(lnpt, jmin, jmax, nlen, max_freq)
    call get_properties(sta_name, component, dt_channel, channels) 
+   call get_options(weight, misfit_type, t_min, t_max, wavelet_weight)
    end subroutine saveforward_set_data_properties
 
 
@@ -67,6 +72,11 @@ contains
    z0 = cmplx(0.0, 0.0)
    first = 0
    last = 0
+
+   open(12,file='misfit_details_forward.txt')
+   write(12,*) "id sta_name component weight misfit"
+
+
 !   write(*,*) dxs, dys
    if (strong) then
       call write_near_field_forward(slip, rake, rupt_time, trise, tfall, first, last, &
@@ -90,6 +100,8 @@ contains
       call write_dart_forward(slip, rake, rupt_time, trise, tfall, first, last)
       first = last
    end if
+   close(12)
+   print *, "done writing misfit_details_forward.txt"
    end subroutine write_forward
    
    
@@ -110,8 +122,10 @@ contains
    implicit none
    integer first, last, channel, channel_max, i, j, k, n_chan
    real slip(:), rake(:), rupt_time(:), synthetic(wave_pts2), &
-   &  tfall(:), trise(:), real1(wave_pts2), imag1(wave_pts2), dt
+   &  tfall(:), trise(:), real1(wave_pts2), imag1(wave_pts2), &
+   & coeffs_syn(wave_pts2), dt
    real*8 t1, t2, df
+   real*8 :: misfit1, misfit1_no_weight
    complex forward(wave_pts2), z0, z
    complex :: source2(wave_pts, max_rise_time_range, max_rise_time_range)
    character(len=70) filename, filename2
@@ -184,6 +198,11 @@ contains
       end do
 
       call realtr(real1, imag1, lnpt)
+
+      call wavelet_syn(real1, imag1, coeffs_syn)
+      call misfit_channel(channel, coeffs_syn, misfit1, misfit1_no_weight)
+      write(12, *)  channel, sta_name(channel), component(channel), weight(channel), misfit1_no_weight
+
       call fft(real1, imag1, lnpt, 1.)
     
       write(18,*)nlen,dt,sta_name(channel),comp
@@ -211,10 +230,11 @@ contains
    implicit none
    integer n_chan, channel, i, j, k, nl, first, last
    real slip(:), rake(:), rupt_time(:), tfall(:), trise(:), &
-   &  dt, real1(wave_pts2), imag1(wave_pts2)
+   &  dt, real1(wave_pts2), imag1(wave_pts2), coeffs_syn(wave_pts2)
    real*8 t1, t2, df
    complex ::  z, z0, forward(wave_pts)
    complex :: source2(wave_pts, max_rise_time_range, max_rise_time_range)
+   real*8 :: misfit1, misfit1_no_weight
 
    write(*,*)'Return body wave synthetics from input kinematic model...'
    open(9,file='channels_body.txt',status='old')
@@ -260,6 +280,11 @@ contains
          end if
       end do
       call realtr(real1, imag1, lnpt)
+
+      call wavelet_syn(real1, imag1, coeffs_syn)
+      call misfit_channel(channel, coeffs_syn, misfit1, misfit1_no_weight)
+      write(12, *)  channel, sta_name(channel), component(channel), weight(channel), misfit1_no_weight
+
       call fft(real1, imag1, lnpt, 1.0)
       nl = 2**lnpt
       if (llove(i) .eq. 0) then
@@ -292,8 +317,10 @@ contains
    integer first, last, channel_max, k, i, j, channel, n_chan
 
    real slip(:), rake(:), rupt_time(:), tfall(:), trise(:), &
-   &  real1(wave_pts2), imag1(wave_pts2), dt
+   &  real1(wave_pts2), imag1(wave_pts2), dt, coeffs_syn(wave_pts2)
+
    real*8 t1, t2, df
+   real*8 :: misfit1, misfit1_no_weight
 
    complex z0, forward(wave_pts2), z
    complex :: source2(wave_pts, max_rise_time_range, max_rise_time_range)
@@ -350,6 +377,11 @@ contains
       end do
      
       call realtr(real1, imag1, lnpt)
+
+      call wavelet_syn(real1, imag1, coeffs_syn)
+      call misfit_channel(channel, coeffs_syn, misfit1, misfit1_no_weight)
+      write(12, *)  channel, sta_name(channel), component(channel), weight(channel), misfit1_no_weight
+
       call fft(real1, imag1, lnpt, 1.0)
    
       if (io_up(i) .eq. 1) then
@@ -382,8 +414,9 @@ contains
    integer first, last, k, i, j, channel, n_chan, channel_max
    real slip(:), rake(:), rupt_time(:), &
    &  tfall(:), trise(:), real1(wave_pts2), imag1(wave_pts2), &
-   &  dt
+   &  coeffs_syn(wave_pts2), dt
    real*8 t1, t2, df
+   real*8 :: misfit1, misfit1_no_weight
    complex forward(wave_pts2), z0, z
    complex :: source2(wave_pts, max_rise_time_range, max_rise_time_range)
 
@@ -439,6 +472,11 @@ contains
       end do
  
       call realtr(real1, imag1, lnpt)
+
+      call wavelet_syn(real1, imag1, coeffs_syn)
+      call misfit_channel(channel, coeffs_syn, misfit1, misfit1_no_weight)
+      write(12, *)  channel, sta_name(channel), component(channel), weight(channel), misfit1_no_weight
+
       call fft(real1, imag1, lnpt, 1.)
    
       write(18,*)nlen,dt,sta_name(channel),'dart'
