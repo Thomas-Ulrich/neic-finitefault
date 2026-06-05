@@ -1,6 +1,7 @@
 import os
 import pathlib
 import subprocess
+from glob import glob
 from typing import Dict, List, Optional
 
 from ffm.acquisition.teleseismicquery import TeleseismicQuery
@@ -53,6 +54,60 @@ class CwbQuery(TeleseismicQuery):
                         print("No data")
         finally:
             os.chdir(current_dir)
+
+        # reformat sac PZ files
+        for pz in glob("./*.sac.pz"):
+            with open(pz, "r") as old:
+                old_pz_data = old.read()
+            if "* INPUT UNIT   NM" not in old_pz_data:
+                print(f"Unit in {pz} not the expected NM. Skipping reformatting")
+                continue
+            # remove comment lines
+            old_lines = old_pz_data.split("\n")
+            # remove comments and constant lines
+            new_lines = []
+            constant: Optional[str] = None
+            station: Optional[str] = None
+            network_line: Optional[str] = None
+            component: Optional[str] = None
+            location: Optional[str] = None
+            for line in old_lines:
+                if line.startswith("*"):
+                    if line.startswith("* NETWORK"):
+                        network_line = line.split("NETWORK")[-1].strip()
+                    elif line.startswith("* STATION"):
+                        station = line.split("STATION")[-1].strip()
+                    if line.startswith("* COMPONENT"):
+                        component = line.split("COMPONENT")[-1].strip()
+                    if line.startswith("* LOCATION"):
+                        location = line.split("LOCATION")[-1].strip()
+                    continue
+                elif line.startswith("CONSTANT"):
+                    constant = line
+                else:
+                    new_lines += [line]
+            if (
+                constant is None
+                or station is None
+                or network_line is None
+                or component is None
+                or location is None
+            ):
+                print(
+                    f"CONSTANT and/or station information cannot be found in {pz}. Skipping reformatting"
+                )
+                continue
+            constant_val = constant.split("CONSTANT")[-1].strip()
+            new_constant = float(constant_val) * 1e9
+            updated_constant = constant.replace(constant_val, f"{new_constant:.4e}")
+            if new_lines[-1] == "":
+                new_lines[-1] = updated_constant
+            else:
+                new_lines += [updated_constant]
+            new_file = f"SAC_PZs_{network_line}_{station}_{component}_{location}"
+            with open(new_file, "w") as new:
+                new.write("\n".join(new_lines))
+            os.remove(pz)
         return commands
 
     @property
