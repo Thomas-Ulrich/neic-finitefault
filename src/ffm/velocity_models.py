@@ -422,7 +422,7 @@ def __litho_crust_velmodel(tensor_info: dict, default_dirs: dict) -> dict:
         profiles[var_new] = extract_profile(var)
 
     profiles["qb"] = 2.0 * profiles["qa"]
-    profiles["density"] *= 0.001
+    profiles["dens"] *= 0.001
 
     mask = profiles["s_vel"] > 0.1
 
