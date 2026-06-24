@@ -364,7 +364,7 @@ contains
    character(len=20) filename, string1, string2
    character(len=30) event_file
 !   character(len=6) sta_name(max_stations)
-   character(len=250) modes
+   character(len=300) modes
    logical :: is_file
 
    write(*,*)'Get stations metadata and waveforms for long period surface waves...'

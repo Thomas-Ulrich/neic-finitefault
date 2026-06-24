@@ -414,7 +414,7 @@ contains
    complex :: kahan_y, kahan_t, kahan_c
    complex start(wave_pts), green_s(wave_pts2, 10), green_dip0, green_stk0, z0
 
-   character(len=250) modes
+   character(len=300) modes
    character(len=300) surf_gf_bank
    character(len=6) sta_name1
    logical :: many_events
