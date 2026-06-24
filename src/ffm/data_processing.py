@@ -1522,6 +1522,8 @@ def __worker(
     directory = pathlib.Path(directory)
     for sac in select_str_data:
         stream = read(sac)
+        name = stream[0].stats.station
+        channel = stream[0].stats.channel
         if _delete_criteria(stream[0].data):
             print(f"skipping {sac} for station {name}, channel {channel}: "
                 "delete criteria for baseline removal")
