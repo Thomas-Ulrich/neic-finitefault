@@ -139,12 +139,12 @@ contains
    
    do i=1, n_layers_new
       j = n_layers_new-i+1
-      temp(i,1)=new_vel_p(i)
-      temp(i,2)=new_vel_s(i)
-      temp(i,3)=new_dens(i)
-      temp(i,4)=qqp(i)
-      temp(i,5)=qqs(i)
-      temp(i,6)=new_thick(i)
+      temp(i,1)=new_vel_p(j)
+      temp(i,2)=new_vel_s(j)
+      temp(i,3)=new_dens(j)
+      temp(i,4)=qqp(j)
+      temp(i,5)=qqs(j)
+      temp(i,6)=new_thick(j)
    enddo
    new_vel_p(:)=temp(:,1)
    new_vel_s(:)=temp(:,2)
