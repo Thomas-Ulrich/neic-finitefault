@@ -28,7 +28,7 @@ from ffm.plot_graphic_NEIC import (
     plot_misfit,
     shakemap_polygon,
 )
-from ffm.plot_Map import PlotMap
+from ffm.plot_graphic_NEIC import PlotMap
 from ffm.read_config import CONFIG_PATH
 from ffm.seismic_tensor import get_tensor
 from ffm.shakemap_polygon import ShakeRupture
