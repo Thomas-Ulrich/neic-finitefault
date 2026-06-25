@@ -506,8 +506,7 @@ def shift_match2(
 
         if zero_start:
             stream = read(files2[0]["file"])
-            new_baseline = stream[0].data[start + tr_shift]
-            stream[0].data = stream[0].data - new_baseline
+            stream[0].data = stream[0].data - np.mean(stream[0].data)
             stream.write(file["file"], format="SAC", byteorder=0)
     return files
 
