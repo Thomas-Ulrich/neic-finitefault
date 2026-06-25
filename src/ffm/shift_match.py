@@ -742,34 +742,42 @@ def _shift2(
     :return: The location of the minimum error
     :rtype: int
     """
-    synthetics = [synthetic[:length] for synthetic in synthetics]
+    best_shift = 0
+    best_cc = -np.inf
 
-    j_min = 0
-    err_max = 0
     for j in range(-nshift, nshift + 1):
-        start2 = start_pos + j
-        err = 0
-        if start2 < 0:
+        s0 = start_pos + j
+        s1 = s0 + length
+
+        if s0 < 0:
             continue
-        else:
-            zipped = zip(waveforms, synthetics)
-            for i, (observed, synthetic) in enumerate(zipped):
-                observed2 = np.array(
-                    [
-                        val
-                        for i, val in enumerate(observed[start_pos + j :])
-                        if i < length
-                    ]
-                )
-                synthetic2 = synthetic[: len(observed2)]
-                err = err + 2 * np.sum(observed2 * synthetic2)
 
-        if err_max <= err:
-            err_max = err
-            j_min = j
+        cc_sum = 0.0
+        n_used = 0
 
-    return j_min
+        for obs, syn in zip(waveforms, synthetics):
+            if s1 > len(obs):
+                continue
 
+            o = obs[s0:s1]
+            s = syn[:length]
+
+            # remove mean (important!)
+            o = o - o.mean()
+            s = s - s.mean()
+
+            denom = np.linalg.norm(o) * np.linalg.norm(s)
+            if denom == 0:
+                continue
+
+            cc_sum += np.dot(o, s) / denom
+            n_used += 1
+
+        if n_used > 0 and cc_sum > best_cc:
+            best_cc = cc_sum
+            best_shift = j
+
+    return best_shift
 
 def print_arrival(
     tensor_info: dict, directory: Union[pathlib.Path, str] = pathlib.Path()
