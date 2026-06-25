@@ -1526,7 +1526,7 @@ def __worker(
         channel = stream[0].stats.channel
         if _delete_criteria(stream[0].data):
             print(f"skipping {sac} for station {name}, channel {channel}: "
-                "delete criteria for baseline removal")
+                "amplitude is too low")
             continue
         st_vel = wang1.wang_process(sac)
         if not st_vel:
