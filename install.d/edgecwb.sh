@@ -46,7 +46,7 @@ fi
 # ==============================================================================
 # Download required EDGE CWB Query Java Client
 # NOTE: obspy does have a cwb query, but it is not complete and does not allow
-#       the distance constrainst parameters. Once the obspy neic client is complete
+#       the distance constraint parameters. Once the obspy neic client is complete
 #       the project will use that instead
 # ==============================================================================
 CWB_QUERY_ZIP="${FINITEFAULT_DIR}/CWBQuery.zip";
