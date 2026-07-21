@@ -44,11 +44,15 @@ then
 fi
 
 # ==============================================================================
-# Download required data and compile FORTRAN code
+# Download required EDGE CWB Query Java Client
+# NOTE: obspy does have a cwb query, but it is not complete and does not allow
+#       the distance constrainst parameters. Once the obspy neic client is complete
+#       the project will use that instead
 # ==============================================================================
 CWB_QUERY_ZIP="${FINITEFAULT_DIR}/CWBQuery.zip";
 CWB_QUERY="${FINITEFAULT_DIR}/CWBQuery";
+# Download version 1.50 https://code.usgs.gov/groups/ghsc/neic/-/packages/4095
 curl -o "${CWB_QUERY_ZIP}" -L \
-            "https://code.usgs.gov/ghsc/neic/edgecwb/edgecwbgroup/edgecwbfiles/-/package_files/18579/download";
+            "https://code.usgs.gov/ghsc/neic/edgecwb/edgecwbgroup/edgecwbfiles/-/package_files/19579/download";
 unzip "${CWB_QUERY_ZIP}" -d "${CWB_QUERY}";
 rm "${CWB_QUERY_ZIP}";
