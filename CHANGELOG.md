@@ -1,4 +1,5 @@
 # Change Log
+
 - [Change Log](#change-log)
 - [1.X.X](#1xx)
   - [Changed](#changed)
@@ -20,23 +21,27 @@
 # 1.X.X
 
 ## Changed
+
 - Simplified Dockerfile for ease of use
+- Updated CWBQuery jar file to version 1.50
 
 ## Removed
+
 - Removed automated publishing of Docker images from pipeline
 
 # [1.1.0](https://code.usgs.gov/ghsc/neic/algorithms/neic-finitefault/-/releases/1.1.0)
 
-## Added 
+## Added
+
 - Option for static offset ramp added for imagery data
 - New `ShakeRupture` class added to write polygons for ShakeMap. Includes polygons for multiple segments.
 - Waveform plots now include units
 - Added option to reformat synthetic output as SAC files (#175)
 - New `misfit_details.txt` included in output
 - Added `velocity_model` option to `wasp manage update-inputs`
-  
 
 ## Changed
+
 - InSAR data is all grouped into a general imagery category rather than divided into ascending/descending.
 - Range of allowed values for imagery data ramp coefficients increased
 - References to "GPS" updated to "GNSS"
@@ -51,8 +56,8 @@
 - Made rake vector scale dependent on fault segment width if using autoscale to ensure rake vectors scale correctly for multi-segment models where segments are of different widths
 - Labels use "AsymmetricCosine" instead of "Asymetriccosine"
 
-
 ## Fixed
+
 - Previously .fsp format did not accommodate multiple segments with different Dx/Dz values. New code adds Dx, Dz metadata into each segment header in case of different subfault sizes for multisegment models.
 - Fixed moment rate units to be Nm/s
 - Shift match plotting fixed for negative shifts (#195)
@@ -61,23 +66,25 @@
 - vel_model.txt not overwritten during plotting
 - Fixed accidental `final_final_` surface wave file naming
 - `static_to_fsp` labels datetime as "UTC"
-  
+
 ## Removed
+
 - Scale removed from map plot
 
-
 # [1.0.0 ](https://code.usgs.gov/ghsc/neic/algorithms/neic-finitefault/-/releases/1.0.0)
+
 https://doi.org/10.5066/P1EKKUNW
 
-## Added 
-- Manual shift  match option added for `shift_match` for #156
+## Added
+
+- Manual shift match option added for `shift_match` for #156
 - cutde added as dependency for plotting
-- Checks and raised errors added for incorrectly entered stations/components arguments in `_modify_by_dict` 
+- Checks and raised errors added for incorrectly entered stations/components arguments in `_modify_by_dict`
 - Jupyter notebook added as dependency
 - Added option to add multiple ascending/descending InSAR files in `wasp manage fill-dicts`
 
-
 ## Changed
+
 - Installation process replaced Miniconda with Miniforge
 - `wasp manage update-inputs` `directory` argument now required
 - Installation process updated to utilize conda rather than installing from source
@@ -85,6 +92,7 @@ https://doi.org/10.5066/P1EKKUNW
 - Defaults for `filling_data_dicts` method arguments (`insar_asc` and `insar_desc`) updated from `List[None]` to `None`
 
 ## Fixed
+
 - Fixed description of map limits parameter, and changed KML plot so that map limits parameter is consistent with other plots.
 - SRF format skipped if solution is static-only in `wasp plot neic`, since SRF format is incompatible with static solutions.
 - Fixed strong motion and cgs labels for `execute_plot`
@@ -95,6 +103,7 @@ https://doi.org/10.5066/P1EKKUNW
 - Observed cGPS waveforms are extended by a constant value (the static displacement). However, the cGPS Green's functions, whose size is always 1024, are truncated to zero about 80 points before the end of the waveform. In the wavelet domain, this is an issue because the FFT of the observed waveform for cGPS observations (not truncated to zero) then does not match the FFT of the cGPS synthetics (truncated to zero), leading to a mismatch of wavelet coefficients. The cGPS waveforms were extended to the static displacement, until reaching the point at 1024-80. From then on, the observed waveform is truncated to zero, for consistency with the Green's functions. We also update the cgps_waves.json wavelet_weight values to encourage better fitting of low frequencies.
 
 ## Removed
+
 - Removed code related to the no longer used `Event_mult.in` file (#134)
 - okada_wrapper dependency removed
 - Removed unused files in `fortran_code/` directory
@@ -102,9 +111,11 @@ https://doi.org/10.5066/P1EKKUNW
 # [0.1.0 (Provisional Release)](https://code.usgs.gov/ghsc/neic/algorithms/neic-finitefault/-/releases/0.1.0)
 
 ## Added
+
 - All code transferred from GitHub
 - Added enhanced tests
 - Added Typer backed command line interface
 
 ## Changed
+
 - Command names have slight variations from GitHub code

@@ -13,6 +13,7 @@ class CwbQuery(TeleseismicQuery):
         directory: pathlib.Path,
         edge_cwb_jar_path: pathlib.Path,
         java: pathlib.Path,
+        host: str ,
         networks: List[str] = [],
         stations: Optional[Dict[str, Dict[str, List[str]]]] = None,
     ):
@@ -21,7 +22,7 @@ class CwbQuery(TeleseismicQuery):
         for network in networks:
             commands += [
                 (
-                    f"{cwb_cmd} -s {network:.<7}BH. "
+                    f"{cwb_cmd} -s {network:.<7}BH. -h {host} "
                     f"-delazc {self.min_distance}:{self.max_distance}:{self.latitude}:{self.longitude} "
                     f'-b "{self.date_string}" -d {self.duration} -nogaps -sacpz nm'
                 )
@@ -32,7 +33,7 @@ class CwbQuery(TeleseismicQuery):
                     for channel in channels:
                         commands += [
                             (
-                                f"{cwb_cmd} -s {network_key:.<2}{station_key:.<5}{channel:.<3} "
+                                f"{cwb_cmd} -s {network_key:.<2}{station_key:.<5}{channel:.<3} -h {host} "
                                 f"-delazc {self.min_distance}:{self.max_distance}:{self.latitude}:{self.longitude} "
                                 f'-b "{self.date_string}" -d {self.duration} -nogaps -sacpz nm'
                             )
