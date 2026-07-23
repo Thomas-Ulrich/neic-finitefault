@@ -100,7 +100,12 @@ def teleseismic(
             "teleseismic query is pointed to IRIS (Requires java)"
         ),
     ),
-    host: str = typer.Option("137.227.230.97", '-h','--host', help="CWB host name. Defaults to public server."),
+    host: str = typer.Option(
+        "137.227.230.97",
+        "-h",
+        "--host",
+        help="CWB host name. Defaults to public server.",
+    ),
     java: pathlib.Path = typer.Option(
         pathlib.Path("/usr/bin/java"),
         "-j",

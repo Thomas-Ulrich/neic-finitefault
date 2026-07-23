@@ -13,7 +13,7 @@ class CwbQuery(TeleseismicQuery):
         directory: pathlib.Path,
         edge_cwb_jar_path: pathlib.Path,
         java: pathlib.Path,
-        host: str ,
+        host: str,
         networks: List[str] = [],
         stations: Optional[Dict[str, Dict[str, List[str]]]] = None,
     ):
