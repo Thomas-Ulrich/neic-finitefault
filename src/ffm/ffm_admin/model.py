@@ -102,13 +102,13 @@ def run(
         help="The maximum slip to be used in checkerboard and forward routines",
     ),
     option: ModellingOption = typer.Option(
-        None,
+        ...,
         "-o",
         "--option",
         help="The model output option to be used in checkerboard and forward routines",
     ),
     option2: ModellingOption2 = typer.Option(
-        None,
+        ...,
         "-o2",
         "--option2",
         help="The second model output option to be used in checkerboard routines",
