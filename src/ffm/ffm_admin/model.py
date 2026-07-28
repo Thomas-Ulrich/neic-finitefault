@@ -204,7 +204,7 @@ def run(
             segments_data=segments_data,
             directory=directory,
         )
-    st_response = (not skip_remove_response)
+    st_response = not skip_remove_response
     if modelling_routine == ModellingRoutine.manual_model_add_data:
         modelling_new_data(
             tensor_info=tensor_info,
