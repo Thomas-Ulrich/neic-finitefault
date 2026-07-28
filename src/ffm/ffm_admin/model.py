@@ -114,7 +114,7 @@ def run(
         help="The second model output option to be used in checkerboard routines",
     ),
     skip_remove_response: bool = typer.Option(
-        True,
+        False,
         "-r",
         "--skip-remove-response",
         help=(
@@ -204,7 +204,7 @@ def run(
             segments_data=segments_data,
             directory=directory,
         )
-
+    st_response = (not skip_remove_response)
     if modelling_routine == ModellingRoutine.manual_model_add_data:
         modelling_new_data(
             tensor_info=tensor_info,
@@ -212,7 +212,7 @@ def run(
             default_dirs=default_directories,
             data_folder=data_directory,
             segments_data=segments_data,
-            st_response=skip_remove_response,
+            st_response=st_response,
             directory=directory,
         )
     if modelling_routine == ModellingRoutine.auto_model:
@@ -234,7 +234,7 @@ def run(
             default_dirs=default_directories,
             velmodel=velmodel,
             dt_cgnss=cgnss_dt,
-            st_response=skip_remove_response,
+            st_response=st_response,
             config_path=config_file,
             directory=solution_folder,
         )
