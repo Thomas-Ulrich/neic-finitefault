@@ -10,6 +10,7 @@ dependencies:
   - pip
   - pydantic
   - pygmt
+  - pytest
   - python=3.10
   - ratelimiter
   - scipy
