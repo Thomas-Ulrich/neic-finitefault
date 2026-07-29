@@ -17,3 +17,4 @@ dependencies:
   - typer
   - pip:
     - pyrocko
+    - poethepoet
