@@ -175,7 +175,7 @@ def _distazbaz(
             np.sin(station_lat * degrees2rad)
             - np.cos(sigma) * np.sin(event_lat * degrees2rad),
         )
-        azimuth = azimuth / degrees2rad
+        azimuth = (azimuth / degrees2rad) % 360
 
         back_azimuth = np.arctan2(
             np.cos(station_lat * degrees2rad)
@@ -184,7 +184,7 @@ def _distazbaz(
             np.sin(event_lat * degrees2rad)
             - np.cos(sigma) * np.sin(station_lat * degrees2rad),
         )
-        back_azimuth = 360 - back_azimuth / degrees2rad
+        back_azimuth = (360 - back_azimuth / degrees2rad) % 360
     else:
         back_azimuth = np.arctan2(
             np.cos(station_lat * degrees2rad)
@@ -193,7 +193,7 @@ def _distazbaz(
             np.sin(event_lat * degrees2rad)
             - np.cos(sigma) * np.sin(station_lat * degrees2rad),
         )
-        back_azimuth = back_azimuth / degrees2rad
+        back_azimuth = (back_azimuth / degrees2rad) % 360
 
         azimuth = np.arctan2(
             np.cos(station_lat * degrees2rad)
@@ -202,7 +202,7 @@ def _distazbaz(
             np.sin(station_lat * degrees2rad)
             - np.cos(sigma) * np.sin(event_lat * degrees2rad),
         )
-        azimuth = 360 - azimuth / degrees2rad
+        azimuth = (360 - azimuth / degrees2rad) % 360
     return distance, azimuth, back_azimuth
 
 
