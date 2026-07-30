@@ -4,18 +4,19 @@ channels:
 dependencies:
   - cutde
   - cartopy
+  - filelock
   - matplotlib
   - netcdf4
   - obspy
   - pip
+  - pip-audit
   - pydantic
   - pygmt
-  - pytest
   - python=3.10
   - ratelimiter
   - scipy
   - shapely
   - typer
   - pip:
-    - pyrocko
-    - poethepoet
+      - pyrocko
+      - poethepoet
