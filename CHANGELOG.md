@@ -39,6 +39,12 @@
   and total moment magnitude rather than byte equality.
 
 ## Fixed
+- `fortran_code/src_dc_f95` no longer tracks both `bessel.f` and `bessel.F`,
+  which are the same path on case-insensitive filesystems (macOS, Windows) and
+  made every checkout permanently dirty there. `bessel.f` is a build artifact
+  (generated from `bessel.FF` by cpp during the build) and is now gitignored;
+  `bessel.F` was an unused older implementation (only referenced by a
+  commented-out rule in `makefile_old`).
 - `test_automatic_tele` skips waveform comparison for II_SUR, US_GOGA,
   IU_RCBR, and IU_TSUM: the stored golden traces for these dual-location-code
   stations mix location-10 data with the location-00 instrument response
