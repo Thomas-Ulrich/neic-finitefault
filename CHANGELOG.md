@@ -26,6 +26,12 @@
   because ARM64 static addressing is limited to +/-4 GB and gcc has no large
   code model on macOS), and the `-mcmodel` flags (x86-64 specific) are skipped
   on Darwin in the three fortran Makefiles. Linux compiler flags are unchanged.
+- The automated install script (`install.sh`) now works on macOS: the
+  miniforge installer checksum runs after the download (previously before)
+  and falls back to `shasum -a 256` where `sha256sum` is unavailable, conda
+  is also initialized for zsh (the macOS default shell), and `ffm.sh` checks
+  that `make`/`cpp`/`gfortran` are available before compiling, with Xcode
+  Command Line Tools and Homebrew hints on macOS.
 
 ## Changed
 
