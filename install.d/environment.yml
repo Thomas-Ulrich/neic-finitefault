@@ -2,10 +2,13 @@ name: ff-env
 channels:
   - conda-forge
 dependencies:
+  - black
   - cutde
   - cartopy
   - filelock
+  - isort
   - matplotlib
+  - mypy
   - netcdf4
   - obspy
   - pip
@@ -13,6 +16,7 @@ dependencies:
   - pydantic
   - pygmt
   - pytest
+  - pytest-cov
   - python=3.10
   - ratelimiter
   - scipy

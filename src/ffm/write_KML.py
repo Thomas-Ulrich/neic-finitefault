@@ -409,7 +409,7 @@ def PlotMap_KML(
             if scale == None:
                 scale = 2  # bigger number here makes arrows look longer
             scale2 = 2
-            gnss_z, gnss_n, gnss_e = syn  # type: ignore [misc]
+            gnss_z, gnss_n, gnss_e = np.array(syn)  # type: ignore [misc]
             east_west = float(gnss_e) / max_obs / (1.0 / scale)  # type: ignore
             north_south = float(gnss_n) / max_obs / (1.0 / scale)  # type: ignore
             plt.arrow(
@@ -426,7 +426,7 @@ def PlotMap_KML(
                 transform=dictn["transform"],
                 edgecolor="k",
             )
-            gnss_z, gnss_n, gnss_e = obs  # type: ignore [misc]
+            gnss_z, gnss_n, gnss_e = np.array(obs)  # type: ignore [misc]
             east_west = float(gnss_e) / max_obs / (1.0 / scale)  # type: ignore
             north_south = float(gnss_n) / max_obs / (1.0 / scale)  # type: ignore
             plt.arrow(
