@@ -1,14 +1,14 @@
 {
-  "insar_ascending": [
+  "imagery_insar_ascending": [
     {
-      "name": "insar_ascending.txt",
+      "name": "imagery_insar_ascending.txt",
       "ramp": null,
       "weight": 1.0
     }
   ],
-  "insar_descending": [
+  "imagery_insar_descending": [
     {
-      "name": "insar_descending.txt",
+      "name": "imagery_insar_descending.txt",
       "ramp": null,
       "weight": 1.0
     }
