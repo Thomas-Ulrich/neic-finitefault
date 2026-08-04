@@ -114,11 +114,11 @@ def test_input_chen_imagery():
         with open(tempdir / "imagery_data.json", "w") as tw:
             json.dump(new_imagery, tw)
         shutil.copyfile(
-            RESULTS_DIR / "NP1" / "insar_ascending.txt", tempdir / "insar_ascending.txt"
+            RESULTS_DIR / "NP1" / "imagery_insar_ascending.txt", tempdir / "imagery_insar_ascending.txt"
         )
         shutil.copyfile(
-            RESULTS_DIR / "NP1" / "insar_descending.txt",
-            tempdir / "insar_descending.txt",
+            RESULTS_DIR / "NP1" / "imagery_insar_descending.txt",
+            tempdir / "imagery_insar_descending.txt",
         )
 
         input_chen_imagery(tempdir)

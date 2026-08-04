@@ -157,12 +157,12 @@ def test_filling_data_dicts():
             shutil.copyfile(c["file"], d["file"])
             shutil.copyfile(e["file"], f["file"])
             shutil.copyfile(g["file"], h["file"])
-        for key in ["insar_ascending", "insar_descending"]:
+        for key in ["imagery_insar_ascending", "imagery_insar_descending"]:
             for o, n in zip(IMAGERY_DATA[key], new_imagery[key]):
                 shutil.copyfile(o["name"], n["name"])
         shutil.copyfile(RESULTS_DIR / "NP1" / "gnss_data", tempdir / "gnss_data")
-        imagery_files = [w["name"] for w in new_imagery["insar_ascending"]]
-        imagery_files += [w["name"] for w in new_imagery["insar_descending"]]
+        imagery_files = [w["name"] for w in new_imagery["imagery_insar_ascending"]]
+        imagery_files += [w["name"] for w in new_imagery["imagery_insar_descending"]]
         filling_data_dicts(
             CMT,
             ["cgnss", "gnss", "imagery", "strong", "surf", "body"],
@@ -193,10 +193,10 @@ def test_filling_data_dicts():
             with open(tempdir / fname, "r") as f:
                 props = json.load(f)
             if "imagery" in fname:
-                for idx, d in enumerate(target["insar_ascending"]):
-                    assert props["insar_ascending"][idx] == d
-                for idx, d in enumerate(target["insar_descending"]):
-                    assert props["insar_descending"][idx] == d
+                for idx, d in enumerate(target["imagery_insar_ascending"]):
+                    assert props["imagery_insar_ascending"][idx] == d
+                for idx, d in enumerate(target["imagery_insar_descending"]):
+                    assert props["imagery_insar_descending"][idx] == d
             elif "static" in fname:
                 for idx, d in enumerate(target):
                     for key in [
@@ -319,12 +319,12 @@ def test_imagery_data():
             IMAGERY_DATA, tempdir, replace_dir=str(RESULTS_DIR / "NP1"), file_key="name"
         )
 
-        for key in ["insar_ascending", "insar_descending"]:
+        for key in ["imagery_insar_ascending", "imagery_insar_descending"]:
             for o, n in zip(IMAGERY_DATA[key], new_imagery[key]):
                 shutil.copyfile(o["name"], n["name"])
 
-        imagery_files = [f["name"] for f in new_imagery["insar_ascending"]]
-        imagery_files += [f["name"] for f in new_imagery["insar_descending"]]
+        imagery_files = [f["name"] for f in new_imagery["imagery_insar_ascending"]]
+        imagery_files += [f["name"] for f in new_imagery["imagery_insar_descending"]]
 
         imagery_info = imagery_data(
             imagery_files,
@@ -332,18 +332,18 @@ def test_imagery_data():
         )
         with open(tempdir / "imagery_data.json", "r") as f:
             imagery_json = json.load(f)
-        for idx, d in enumerate(new_imagery["insar_ascending"]):
+        for idx, d in enumerate(new_imagery["imagery_insar_ascending"]):
             assert (
-                imagery_info["insar_ascending"][idx]
-                == imagery_json["insar_ascending"][idx]
+                imagery_info["imagery_insar_ascending"][idx]
+                == imagery_json["imagery_insar_ascending"][idx]
             )
-            assert imagery_info["insar_ascending"][idx] == d
-        for idx, d in enumerate(new_imagery["insar_descending"]):
+            assert imagery_info["imagery_insar_ascending"][idx] == d
+        for idx, d in enumerate(new_imagery["imagery_insar_descending"]):
             assert (
-                imagery_info["insar_descending"][idx]
-                == imagery_json["insar_descending"][idx]
+                imagery_info["imagery_insar_descending"][idx]
+                == imagery_json["imagery_insar_descending"][idx]
             )
-            assert imagery_info["insar_descending"][idx] == d
+            assert imagery_info["imagery_insar_descending"][idx] == d
     finally:
         shutil.rmtree(tempdir)
 

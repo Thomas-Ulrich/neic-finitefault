@@ -183,10 +183,10 @@ def test_fill_dicts():
         assert result.exit_code == 0
 
         # test imagery values (invalid ramp)
-        dummy_insara = tempdir / "insar_ascending.txt"
+        dummy_insara = tempdir / "imagery_insar_ascending.txt"
         with open(dummy_insara, "w"):
             pass
-        dummy_insard = tempdir / "insar_descending.txt"
+        dummy_insard = tempdir / "imagery_insar_descending.txt"
         with open(dummy_insard, "w"):
             pass
         result1 = runner.invoke(
@@ -219,16 +219,16 @@ def test_fill_dicts():
         with open(tempdir / "imagery_data.json") as f:
             imagery_dict = json.load(f)
         assert imagery_dict == {
-            "insar_ascending": [
+            "imagery_insar_ascending": [
                 {
-                    "name": f"{str(tempdir)}/insar_ascending.txt",
+                    "name": f"{str(tempdir)}/imagery_insar_ascending.txt",
                     "ramp": "linear",
                     "weight": 1.0,
                 },
             ],
-            "insar_descending": [
+            "imagery_insar_descending": [
                 {
-                    "name": f"{str(tempdir)}/insar_descending.txt",
+                    "name": f"{str(tempdir)}/imagery_insar_descending.txt",
                     "ramp": "static",
                     "weight": 1.0,
                 },
@@ -890,12 +890,12 @@ def test_update_inputs():
         with open(tempdir / "imagery_data.json", "w") as f:
             json.dump(new_imagery, f)
         shutil.copyfile(
-            RESULTS_DIR / "NP1" / "insar_ascending.txt",
-            tempdir / "insar_ascending.txt",
+            RESULTS_DIR / "NP1" / "imagery_insar_ascending.txt",
+            tempdir / "imagery_insar_ascending.txt",
         )
         shutil.copyfile(
-            RESULTS_DIR / "NP1" / "insar_descending.txt",
-            tempdir / "insar_descending.txt",
+            RESULTS_DIR / "NP1" / "imagery_insar_descending.txt",
+            tempdir / "imagery_insar_descending.txt",
         )
         shutil.copyfile(
             RESULTS_DIR / "NP1" / "static_data.json",

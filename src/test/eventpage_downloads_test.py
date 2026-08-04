@@ -55,8 +55,8 @@ def test_temporary_file_reorganization_for_publishing():
         "STF.txt",
         "Solution.txt",
         ["plots", "MomentRate.png"],
-        "insar_ascending.txt",
-        "insar_descending.txt",
+        "imagery_insar_ascending.txt",
+        "imagery_insar_descending.txt",
         "fsp_sol_file.txt",
         "shakemap_polygon.txt",
         "surface_deformation.disp",
@@ -156,7 +156,6 @@ def test_write_Coulomb_file():
         shutil.rmtree(tempdir)
 
 
-# @pytest.mark.skip(reason="This test is temporarily disabled.")
 @pytest.mark.skipif(
     os.getenv("RUNNER", False) in [True, "true"],
     reason="Pipeline does not have the required memory",

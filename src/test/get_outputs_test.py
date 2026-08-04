@@ -111,7 +111,7 @@ def test_get_imagery():
         )
         with open(tempdir / "imagery_data.json", "w") as i:
             json.dump(new_imagery, i)
-        for key in ["insar_ascending", "insar_descending"]:
+        for key in ["imagery_insar_ascending", "imagery_insar_descending"]:
             for o, n in zip(imagery_data[key], new_imagery[key]):
                 shutil.copyfile(o["name"], n["name"])
         get_imagery(tempdir)

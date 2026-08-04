@@ -251,11 +251,11 @@ def test_PlotImagery():
             tempdir / "imagery_synthetics.txt",
         )
         shutil.copyfile(
-            RESULTS_DIR / "NP1" / "insar_ascending.txt", tempdir / "insar_ascending.txt"
+            RESULTS_DIR / "NP1" / "imagery_insar_ascending.txt", tempdir / "imagery_insar_ascending.txt"
         )
         shutil.copyfile(
-            RESULTS_DIR / "NP1" / "insar_descending.txt",
-            tempdir / "insar_descending.txt",
+            RESULTS_DIR / "NP1" / "imagery_insar_descending.txt",
+            tempdir / "imagery_insar_descending.txt",
         )
         new_imagery = update_manager_file_locations(
             get_imagery_json(),
@@ -278,8 +278,8 @@ def test_PlotImagery():
                 / "tectonicplates"
                 / "PB2002_plates",
             },
-            imagery_data["insar_ascending"][0]["points"],
-            "insar_ascending",
+            imagery_data["imagery_insar_ascending"][0]["points"],
+            "imagery_insar_ascending",
             directory=tempdir,
         )
         PlotImagery(
@@ -293,12 +293,12 @@ def test_PlotImagery():
                 / "tectonicplates"
                 / "PB2002_plates",
             },
-            imagery_data["insar_descending"][0]["points"],
-            "insar_descending",
+            imagery_data["imagery_insar_descending"][0]["points"],
+            "imagery_insar_descending",
             directory=tempdir,
         )
-        assert (tempdir / "Imagery_insar_ascending_fit.png").exists()
-        assert (tempdir / "Imagery_insar_descending_fit.png").exists()
+        assert (tempdir / "Imagery_imagery_insar_ascending_fit.png").exists()
+        assert (tempdir / "Imagery_imagery_insar_descending_fit.png").exists()
     finally:
         shutil.rmtree(tempdir)
 
