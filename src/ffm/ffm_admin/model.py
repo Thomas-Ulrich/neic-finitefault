@@ -333,5 +333,6 @@ def run_multiple(
         strike=strikes,
         dip=dips,
         rupt_vel=rupture_velocities,
+        config_file=config_file,
         directory=directory,
     )

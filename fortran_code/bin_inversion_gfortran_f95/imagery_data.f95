@@ -156,7 +156,7 @@ contains
    real*8 :: disp, ramp2
    logical is_file
 !
-   open(33, file='Insar_static_subfault.txt', status='old')
+   open(33, file='imagery_static_subfault.txt', status='old')
    read(33,*) n_tt
    do point = 1, points
       read(33,*)

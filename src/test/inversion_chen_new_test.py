@@ -109,7 +109,7 @@ def _end_to_end(
         if os.path.isfile(os.path.join(directory, "data", "gnss_data")):
             shutil.copy2(os.path.join(directory, "data", "gnss_data"), directory)
     if "imagery" in data_type:
-        imagery_files = glob.glob(os.path.join(directory, "data", "insar_*.txt"))
+        imagery_files = glob.glob(os.path.join(directory, "data", "imagery_*.txt"))
         for file in imagery_files:
             if os.path.isfile(file):
                 shutil.copy2(file, directory)
@@ -121,7 +121,7 @@ def _end_to_end(
         tensor_info, data_type, data_prop, st_response=st_response, directory=data_dir
     )
     data_folder = os.path.join(directory, "data")
-    imagery_files = glob.glob(str(directory) + "/insar_*.txt")
+    imagery_files = glob.glob(str(directory) + "/imagery_*.txt")
     imagery_files = None if len(imagery_files) == 0 else imagery_files  # type: ignore
     filling_data_dicts(
         tensor_info,
@@ -209,6 +209,7 @@ def _end_to_end(
         data_type=data_type,
         data_prop=data_prop,
         default_dirs=default_dirs,
+        imagery_files=imagery_files,
         logger=logging.Logger("testlogger"),
         velmodel=velmodel,
         directory=plane1_folder,
@@ -304,10 +305,10 @@ def test_automatic_usgs():
                     else:
                         assert data[key] == target_item
         with open(tempdir / "20150916225432" / "ffm.0" / "NP1" / "Solution.txt") as f:
-            solucion = f.read()
+            solution = f.read()
         with open(RESULTS_DIR / "NP1" / "Solution.txt") as t:
             target = t.read()
-        assert solucion == target
+        assert solution == target
         # compare processed cGNSS waveforms
         data_dir = RESULTS_DIR / "data"
         waveforms = glob.glob(str(data_dir / "cGNSS") + "/*.sac")
@@ -395,15 +396,15 @@ def test_automatic_cgnss():
                 tempdir / "20150916225432" / "ffm.0" / f,
                 tempdir,
             )
-        # compare solucion
+        # compare solution
         with open(tempdir / "20150916225432" / "ffm.0" / "NP1" / "Solution.txt") as f:
-            solucion = f.read()
+            solution = f.read()
         with open(RESULTS_DIR / "NP1" / "Solution_cgnss.txt", "r") as f:
-            target_solucion = f.read()
+            target_solution = f.read()
         # annealing trajectories diverge across platforms/BLAS backends, so
         # require equivalent geometry and total moment rather than identical
         # per-subfault values
-        assert_solution_equivalent(solucion, target_solucion)
+        assert_solution_equivalent(solution, target_solution)
         # compare processed waveforms
         data_dir = RESULTS_DIR / "data"
         waveforms = glob.glob(str(data_dir / "cGNSS") + "/*.sac")
@@ -463,15 +464,15 @@ def test_automatic_gnss():
                 tempdir / "20150916225432" / "ffm.0" / f,
                 tempdir,
             )
-        # compare solucion
+        # compare solution
         with open(tempdir / "20150916225432" / "ffm.0" / "NP1" / "Solution.txt") as f:
-            solucion = f.read()
+            solution = f.read()
         with open(RESULTS_DIR / "NP1" / "Solution_gnss.txt", "r") as f:
-            target_solucion = f.read()
+            target_solution = f.read()
         # annealing trajectories diverge across platforms/BLAS backends, so
         # require equivalent geometry and total moment rather than identical
         # per-subfault values
-        assert_solution_equivalent(solucion, target_solucion)
+        assert_solution_equivalent(solution, target_solution)
     finally:
         shutil.rmtree(tempdir)
 
@@ -518,15 +519,15 @@ def test_automatic_imagery():
                 tempdir / "20150916225432" / "ffm.0" / f,
                 tempdir,
             )
-        # compare solucion
+        # compare solution
         with open(tempdir / "20150916225432" / "ffm.0" / "NP1" / "Solution.txt") as f:
-            solucion = f.read()
+            solution = f.read()
         with open(RESULTS_DIR / "NP1" / "Solution_imagery.txt", "r") as f:
-            target_solucion = f.read()
+            target_solution = f.read()
         # annealing trajectories diverge across platforms/BLAS backends, so
         # require equivalent geometry and total moment rather than identical
         # per-subfault values
-        assert_solution_equivalent(solucion, target_solucion)
+        assert_solution_equivalent(solution, target_solution)
     finally:
         shutil.rmtree(tempdir)
 
@@ -576,15 +577,15 @@ def test_automatic_strong_motion():
                 tempdir / "20150916225432" / "ffm.0" / f,
                 tempdir,
             )
-        # compare solucion
+        # compare solution
         with open(tempdir / "20150916225432" / "ffm.0" / "NP1" / "Solution.txt") as f:
-            solucion = f.read()
+            solution = f.read()
         with open(RESULTS_DIR / "NP1" / "Solution_strong_motion.txt", "r") as f:
-            target_solucion = f.read()
+            target_solution = f.read()
         # annealing trajectories diverge across platforms/BLAS backends, so
         # require equivalent geometry and total moment rather than identical
         # per-subfault values
-        assert_solution_equivalent(solucion, target_solucion)
+        assert_solution_equivalent(solution, target_solution)
         # compare processed waveforms
         data_dir = RESULTS_DIR / "data"
         waveforms = glob.glob(str(data_dir / "STR") + "/*.sac")
@@ -646,15 +647,15 @@ def test_automatic_tele():
                 tempdir / "20150916225432" / "ffm.0" / f,
                 tempdir,
             )
-        # compare solucion
+        # compare solution
         with open(tempdir / "20150916225432" / "ffm.0" / "NP1" / "Solution.txt") as f:
-            solucion = f.read()
+            solution = f.read()
         with open(RESULTS_DIR / "NP1" / "Solution_tele.txt", "r") as f:
-            target_solucion = f.read()
+            target_solution = f.read()
         # annealing trajectories diverge across platforms/BLAS backends, so
         # require equivalent geometry and total moment rather than identical
         # per-subfault values
-        assert_solution_equivalent(solucion, target_solucion)
+        assert_solution_equivalent(solution, target_solution)
         # compare processed waveforms
         data_dir = RESULTS_DIR / "data"
         for tp in ["P", "SH", "LONG"]:
