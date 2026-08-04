@@ -251,7 +251,8 @@ def test_PlotImagery():
             tempdir / "imagery_synthetics.txt",
         )
         shutil.copyfile(
-            RESULTS_DIR / "NP1" / "imagery_insar_ascending.txt", tempdir / "imagery_insar_ascending.txt"
+            RESULTS_DIR / "NP1" / "imagery_insar_ascending.txt",
+            tempdir / "imagery_insar_ascending.txt",
         )
         shutil.copyfile(
             RESULTS_DIR / "NP1" / "imagery_insar_descending.txt",
