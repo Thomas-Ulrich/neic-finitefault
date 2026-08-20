@@ -24,6 +24,7 @@ def multiple_solutions(
     strike: Optional[float] = None,
     dip: Optional[float] = None,
     rupt_vel: Optional[float] = None,
+    config_file: Optional[Union[pathlib.Path, str]] = None,
     directory: Union[pathlib.Path, str] = pathlib.Path(),
     test: bool = False,
 ):
@@ -43,8 +44,11 @@ def multiple_solutions(
     :type dip: Optional[float], optional
     :param rupt_vel: The list of rupture velocity values to use, defaults to None
     :type rupt_vel: Optional[float], optional
+    :param config_file: Path to the config file, defaults to None
+    :type config_file: Optional[Union[str, pathlib.Path]], optional
     :param test: Skip multiprocessing for tests, defaults to False
     :type test: bool, optional
+
     :param directory: The base directory to read/write to, defaults to pathlib.Path()
     :type directory: Union[pathlib.Path, str], optional
     """
@@ -91,7 +95,7 @@ def multiple_solutions(
         results = pool.starmap(
             __worker,
             [
-                [tensor_info, data_type, default_dirs, subfolder]
+                [tensor_info, data_type, default_dirs, subfolder, config_file]
                 for subfolder in subfolders
             ],
         )
@@ -103,7 +107,11 @@ def multiple_solutions(
 
 
 def __worker(
-    tensor_info: dict, data_type: List[str], default_dirs: dict, subfolder: str
+    tensor_info: dict,
+    data_type: List[str],
+    default_dirs: dict,
+    subfolder: str,
+    config_path: Optional[Union[str, pathlib.Path]] = None,
 ):
     """Run the manual inversion
 
@@ -115,11 +123,19 @@ def __worker(
     :type default_dirs: dict
     :param subfolder: The subfolder for the specific solution
     :type subfolder: str
+    :param config_path: The path to the config file, defaults to None
+    :type config_path: Optional[Union[str, pathlib.Path]], optional
     """
     with open(pathlib.Path(subfolder) / "segments_data.json") as s:
         segments_data = json.load(s)
     inv.manual_modelling(
-        tensor_info, data_type, default_dirs, segments_data, subfolder, plot_sol=False
+        tensor_info,
+        data_type,
+        default_dirs,
+        segments_data,
+        config_path,
+        subfolder,
+        plot_sol=False,
     )
     return
 

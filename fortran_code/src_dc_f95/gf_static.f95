@@ -50,7 +50,7 @@ program gf_static
    if (gnss) filename = trim(directory)//'static_data.txt'
    if (imagery) filename = trim(directory)//'imagery_data.txt'
    if (gnss) filename2 = trim(directory)//'Green_static_subfault.txt'
-   if (imagery) filename2 = trim(directory)//'Insar_static_subfault.txt'
+   if (imagery) filename2 = trim(directory)//'imagery_static_subfault.txt'
    
    disp = .False.
 !

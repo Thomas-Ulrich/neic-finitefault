@@ -73,11 +73,13 @@ def automatic_usgs(
     if "gnss" in data_type:
         if os.path.isfile(os.path.join(directory, "data", "gnss_data")):
             copy2(os.path.join(directory, "data", "gnss_data"), directory)
+    imagery_files = None
     if "imagery" in data_type:
         imagery_files = glob.glob(os.path.join(directory, "data", "imagery*txt"))
         for file in imagery_files:
             if os.path.isfile(file):
                 copy2(file, directory)
+        imagery_files = glob.glob(os.path.join(directory, "imagery*txt"))
     data_dir = directory / "data"
     data_prop = tp.properties_json(
         tensor_info, dt_cgnss=dt_cgnss, data_directory=directory
@@ -90,8 +92,7 @@ def automatic_usgs(
     time2 = time.time() - time2
     logger.info("Time spent processing traces: {}".format(time2))
     data_folder = os.path.join(directory, "data")
-    imagery_files = glob.glob(str(directory) + "/imagery*txt")
-    imagery_files = None if len(imagery_files) == 0 else imagery_files  # type: ignore
+
     dm.filling_data_dicts(
         tensor_info,
         data_type,
@@ -184,6 +185,7 @@ def automatic_usgs(
             data_type,
             data_prop,
             default_dirs,
+            imagery_files,
             logger,
         ),
         kwargs=keywords,
@@ -199,6 +201,7 @@ def automatic_usgs(
             data_type,
             data_prop,
             default_dirs,
+            imagery_files,
             logger,
         ),
         kwargs=keywords,
@@ -252,6 +255,7 @@ def _automatic2(
     data_type: List[str],
     data_prop: dict,
     default_dirs: dict,
+    imagery_files: List[str],
     logger: logging.Logger,
     velmodel: Optional[dict] = None,
     directory: pathlib.Path = pathlib.Path(),
@@ -268,6 +272,8 @@ def _automatic2(
     :type data_prop: dict
     :param default_dirs: The location of default directories
     :type default_dirs: dict
+    :param imagery_files: List of imagery_files
+    :type imagery_files: List
     :param logger: The logger used to log information
     :type logger: logging.Logger
     :param velmodel: The velocity model, defaults to None
@@ -287,8 +293,6 @@ def _automatic2(
         velmodel = mv.select_velmodel(tensor_info, default_dirs, directory=directory)
     np_plane_info = plane_data["plane_info"]
     data_folder = os.path.join(directory.parent.parent, "data")
-    imagery_files = glob.glob(str(directory) + "/imagery*txt")
-    imagery_files = None if len(imagery_files) == 0 else imagery_files  # type: ignore
     dm.filling_data_dicts(
         tensor_info,
         data_type,
@@ -488,6 +492,7 @@ def manual_modelling(
     data_type: List[str],
     default_dirs: dict,
     segments_data: dict,
+    config_path: Optional[Union[str, pathlib.Path]] = None,
     directory: Union[pathlib.Path, str] = pathlib.Path(),
     plot_sol: bool = True,
 ):
@@ -501,6 +506,8 @@ def manual_modelling(
     :type default_dirs: dict
     :param segments_data: The segments properties
     :type segments_data: dict
+    :param config_path: The path to the config file, defaults to None
+    :type config_path: Optional[Union[str, pathlib.Path]], optional
     :param directory: Where the file(s) should be read/written, defaults to pathlib.Path()
     :type directory: Union[pathlib.Path, str], optional
     :param plot_sol: Whether to plot model results, defaults to True
@@ -520,7 +527,9 @@ def manual_modelling(
     writing_inputs(
         tensor_info, data_type, segments_data, min_vel, max_vel, directory=directory
     )
-    writing_inputs0(tensor_info, data_type, directory=directory)
+    writing_inputs0(
+        tensor_info, data_type, config_path=config_path, directory=directory
+    )
     inversion(data_type, default_dirs, logger, directory=directory)
     logger.info("Plot data in folder {}".format(directory))
     if plot_sol == True:

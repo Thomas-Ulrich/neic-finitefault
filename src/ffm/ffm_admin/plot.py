@@ -518,7 +518,9 @@ def neic(
     if generate_downloads:
         if gcmt_tensor_file:
             write_CMTSOLUTION_file(pdefile=gcmt_tensor_file, directory=directory)
-            write_Okada_displacements(directory=directory, pdefile=gcmt_tensor_file)
+            write_Okada_displacements(
+                directory=directory, pdefile=gcmt_tensor_file, config_file=config_file
+            )
         else:
             logging.warn(
                 "No gcmt_tensor_file specified. Skipping writing CMTSOLUTION file and Okada Displacements."

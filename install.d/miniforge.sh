@@ -38,11 +38,11 @@ mini_forge_url="https://github.com/conda-forge/miniforge/releases/latest/downloa
 if [ "$system" == 'Linux' ]; then
     profile=~/.bashrc
     # shellcheck disable=SC1090
-    source $profile;
+    [ -f $profile ] && source $profile;
 elif [ "$system" == 'FreeBSD' ] || [ "$system" == 'Darwin' ]; then
     profile=~/.bash_profile
     # shellcheck disable=SC1090
-    source $profile;
+    [ -f $profile ] && source $profile;
 else
     echo "Currently only Linux and Unix systems are supported. Exiting."
     exit
@@ -53,8 +53,14 @@ conda --version
 # shellcheck disable=SC2181
 if [ $? -ne 0 ]; then
     echo "Miniforge cannot be found. Installing..."
-    sha256sum ./miniforge.sh;
     curl -L "${mini_forge_url}" -o ./miniforge.sh;
+    # print the checksum of the downloaded installer for the record
+    # (sha256sum on linux, shasum on macOS)
+    if command -v sha256sum > /dev/null; then
+        sha256sum ./miniforge.sh;
+    else
+        shasum -a 256 ./miniforge.sh;
+    fi
 
     bash ./miniforge.sh -fbp "${HOME}"/miniforge;
     # shellcheck disable=SC1090
@@ -63,6 +69,11 @@ if [ $? -ne 0 ]; then
     rm ./miniforge.sh;
     # send source to profile
     echo ". ${HOME}/miniforge/etc/profile.d/conda.sh" >> $profile;
+    # the default login shell on macOS is zsh, which does not read the
+    # bash profiles written above
+    if [ "$(basename "${SHELL}")" == 'zsh' ]; then
+        echo ". ${HOME}/miniforge/etc/profile.d/conda.sh" >> ~/.zprofile;
+    fi
     # shellcheck disable=SC1090
     source $profile;
 else
@@ -70,5 +81,8 @@ else
 fi
 
 # shellcheck disable=SC1090
-source $profile;
+[ -f $profile ] && source $profile;
 conda init;
+if [ "$(basename "${SHELL}")" == 'zsh' ]; then
+    conda init zsh;
+fi

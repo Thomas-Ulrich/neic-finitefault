@@ -664,12 +664,18 @@ def write_Coulomb_file(
 def write_Okada_displacements(
     pdefile: Union[pathlib.Path, str],
     directory: Union[pathlib.Path, str] = pathlib.Path(),
+    config_file: Optional[Union[pathlib.Path, str]] = None,
+    test: bool = False,
 ):
     """Write out the Okada displacements
     :param pdefile: The path to the CMT file
     :type pdefile: Union[pathlib.Path, str], optional
     :param directory: The directory where to write the file(s), defaults to pathlib.Path()
     :type directory: Union[pathlib.Path, str], optional
+    :param config_file: Path to the config file, defaults to None
+    :type config_file: Optional[Union[str, pathlib.Path]], optional
+    :param test: Whether running test, default=False
+    :type test: bool
     """
     print("Writing Okada Displacement File...")
 
@@ -860,7 +866,14 @@ def write_Okada_displacements(
             )
 
     plot_okada_map(
-        directory, gridLon, gridLat, ux_cutde_total, uy_cutde_total, uz_cutde_total
+        directory,
+        gridLon,
+        gridLat,
+        ux_cutde_total,
+        uy_cutde_total,
+        uz_cutde_total,
+        config_file=config_file,
+        test=test,
     )
 
 
@@ -1141,7 +1154,14 @@ def strike_rotation(fault_strike, x_matrix_in, y_matrix_in, direction="fwd"):
 
 
 def plot_okada_map(
-    directory, gridx, gridy, ux_okada_cutde, uy_okada_cutde, uz_okada_cutde
+    directory,
+    gridx,
+    gridy,
+    ux_okada_cutde,
+    uy_okada_cutde,
+    uz_okada_cutde,
+    config_file: Optional[Union[pathlib.Path, str]] = None,
+    test: bool = False,
 ):
     """
     Plot map of Okada displacements
@@ -1158,9 +1178,13 @@ def plot_okada_map(
     :type uy_okada_cutde: array
     :param uz_okada_cutde: z-coordinate displacement
     :type uz_okada_cutde: array
+    :param config_file: Path to the config file, defaults to None
+    :type config_file: Optional[Union[str, pathlib.Path]], optional
+    :param test: Whether running test or not, default False
+    :type test: bool
     """
 
-    default_dirs = mng.default_dirs()
+    default_dirs = mng.default_dirs(config_path=config_file)
     min_lon = min(gridx.flatten())
     max_lon = max(gridx.flatten())
     min_lat = min(gridy.flatten())
@@ -1231,7 +1255,7 @@ def plot_okada_map(
     if annotation == 0:
         annotation = 0.1
     pygmt.makecpt(
-        cmap=str(default_dirs["root_dir"]) + "/src/ffm/lajolla_white.cpt",
+        cmap=str(default_dirs["root_dir"]) + "/lajolla_white.cpt",
         reverse=True,
         series=[0, minmax_horiz],
     )
@@ -1256,18 +1280,6 @@ def plot_okada_map(
     )
 
     fig.coast(resolution="h", shorelines="1p,black")
-    fig.plot(
-        str(default_dirs["root_dir"]) + "/pb2002_boundaries.gmt",
-        style="f10/3p",
-        region=region,
-        pen="2p,white",
-    )
-    fig.plot(
-        str(default_dirs["root_dir"]) + "/pb2002_boundaries.gmt",
-        style="f10/3p",
-        region=region,
-        pen="1p,black",
-    )
 
     fig.velo(
         data=okada_positions,
@@ -1307,17 +1319,18 @@ def plot_okada_map(
     )
     fig.colorbar(frame=["x+lDisplacement (m)"])
     fig.coast(resolution="h", shorelines="1p,black")
-    fig.plot(
-        str(default_dirs["root_dir"]) + "/pb2002_boundaries.gmt",
-        style="f10/3p",
-        region=region,
-        pen="2p,white",
-    )
-    fig.plot(
-        str(default_dirs["root_dir"]) + "/pb2002_boundaries.gmt",
-        style="f10/3p",
-        region=region,
-        pen="1p,black",
-    )
+    if not test:
+        fig.plot(
+            str(default_dirs["root_dir"]) + "/pb2002_boundaries.gmt",
+            style="f10/3p",
+            region=region,
+            pen="2p,white",
+        )
+        fig.plot(
+            str(default_dirs["root_dir"]) + "/pb2002_boundaries.gmt",
+            style="f10/3p",
+            region=region,
+            pen="1p,black",
+        )
 
     fig.savefig(directory / "Okada_Displacement.png")

@@ -20,10 +20,42 @@
 
 # 1.X.X
 
+## Added
+- Native macOS (arm64) build support for the fortran code: the 13 GB static
+  `green_bank` array in `retrieve_surf_gf.f95` is now allocatable (required
+  because ARM64 static addressing is limited to +/-4 GB and gcc has no large
+  code model on macOS), and the `-mcmodel` flags (x86-64 specific) are skipped
+  on Darwin in the three fortran Makefiles. Linux compiler flags are unchanged.
+- The automated install script (`install.sh`) now works on macOS: the
+  miniforge installer checksum runs after the download (previously before)
+  and falls back to `shasum -a 256` where `sha256sum` is unavailable, conda
+  is also initialized for zsh (the macOS default shell), and `ffm.sh` checks
+  that `make`/`cpp`/`gfortran` are available before compiling, with Xcode
+  Command Line Tools and Homebrew hints on macOS.
+
 ## Changed
 
 - Simplified Dockerfile for ease of use
 - Updated CWBQuery jar file to version 1.50
+- Tests no longer require bit-identical floating point results across
+  platforms/BLAS backends: quantities derived from LAPACK eigenvalues
+  (`moment_mag`/`seismic_moment`) are compared with tolerant helpers in
+  `testutils.py`, temporary directories are resolved (macOS `/var` symlink),
+  and annealing `Solution.txt` outputs are compared by structure, geometry,
+  and total moment magnitude rather than byte equality.
+
+## Fixed
+- `fortran_code/src_dc_f95` no longer tracks both `bessel.f` and `bessel.F`,
+  which are the same path on case-insensitive filesystems (macOS, Windows) and
+  made every checkout permanently dirty there. `bessel.f` is a build artifact
+  (generated from `bessel.FF` by cpp during the build) and is now gitignored;
+  `bessel.F` was an unused older implementation (only referenced by a
+  commented-out rule in `makefile_old`).
+- `test_automatic_tele` skips waveform comparison for II_SUR, US_GOGA,
+  IU_RCBR, and IU_TSUM: the stored golden traces for these dual-location-code
+  stations mix location-10 data with the location-00 instrument response
+  (amplitude mismatch equals the response magnitude ratio), so current
+  processing cannot reproduce them; goldens should be regenerated.
 
 ## Removed
 

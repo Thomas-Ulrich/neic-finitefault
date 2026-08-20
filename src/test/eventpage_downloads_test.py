@@ -55,8 +55,8 @@ def test_temporary_file_reorganization_for_publishing():
         "STF.txt",
         "Solution.txt",
         ["plots", "MomentRate.png"],
-        "insar_ascending.txt",
-        "insar_descending.txt",
+        "imagery_insar_ascending.txt",
+        "imagery_insar_descending.txt",
         "fsp_sol_file.txt",
         "shakemap_polygon.txt",
         "surface_deformation.disp",
@@ -156,7 +156,6 @@ def test_write_Coulomb_file():
         shutil.rmtree(tempdir)
 
 
-# @pytest.mark.skip(reason="This test is temporarily disabled.")
 @pytest.mark.skipif(
     os.getenv("RUNNER", False) in [True, "true"],
     reason="Pipeline does not have the required memory",
@@ -165,9 +164,27 @@ def test_write_Okada_displacements():
     tempdir = tempfile.mkdtemp()
     try:
         tempdir = pathlib.Path(tempdir)
+
+        with open(
+            pathlib.Path(__file__).parent / "data" / "config.ini",
+            "r",
+        ) as c:
+            config = c.read()
+        with open(tempdir / "config.ini", "w") as c:
+            c.write(config.replace("/home/user/neic-finitefault", str(tempdir)))
+        shutil.copy(
+            pathlib.Path(__file__).parent.parent.parent / "lajolla_white.cpt", tempdir
+        )
+
         for f in ["fsp_sol_file.txt", "Solution.txt"]:
             shutil.copyfile(RESULTS_DIR / "NP1" / f, tempdir / f)
-        write_Okada_displacements(END_TO_END_DIR / "info" / "20003k7a_cmt_CMT", tempdir)
+
+        write_Okada_displacements(
+            END_TO_END_DIR / "info" / "20003k7a_cmt_CMT",
+            tempdir,
+            config_file=tempdir / "config.ini",
+            test=True,
+        )
         with open(tempdir / "surface_deformation.disp", "r") as f:
             disp = f.read()
         with open(RESULTS_DIR / "NP1" / "surface_deformation.disp") as f:

@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
 import pathlib
+from datetime import datetime, timezone
 from unittest import mock
 
 from ffm.acquisition.cwbquery import CwbQuery

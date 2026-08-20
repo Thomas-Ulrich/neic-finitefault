@@ -646,7 +646,7 @@ def imagery_data(
             ramp_types = [None] * len(imagery_files)
         if not len(ramp_types) == len(imagery_files):
             raise ValueError(
-                "You need to input a ramp type (linear, bilinear, quadratic) for each imagery file"
+                "You need to input a ramp type (none, static, linear, bilinear, quadratic) for each imagery file"
             )
         zipped = zip(imagery_files, ramp_types)
         for track, ramp in zipped:

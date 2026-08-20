@@ -7,7 +7,12 @@ from obspy import UTCDateTime  # type: ignore
 
 from ffm.seismic_tensor import get_tensor, planes_from_tensor, write_tensor
 
-from .testutils import END_TO_END_DIR, RESULTS_DIR, get_tensor_info
+from .testutils import (
+    END_TO_END_DIR,
+    RESULTS_DIR,
+    assert_values_close,
+    get_tensor_info,
+)
 
 
 def test_get_tensor():
@@ -36,7 +41,9 @@ def test_get_tensor():
         cmt_file = END_TO_END_DIR / "Illapel_CMTSOLUTION"
         cmt_tensor = get_tensor(cmt_file=cmt_file)
         del cmt_tensor["timedelta"]
-        assert cmt_tensor == target
+        # moment_mag comes from LAPACK eigenvalues, which differ in the last
+        # ulps across platforms/BLAS backends, so compare with tolerance
+        assert_values_close(cmt_tensor, target)
 
         # test updating tensor
         shutil.copyfile(
@@ -44,7 +51,7 @@ def test_get_tensor():
         )
         tensor = get_tensor(directory=tempdir)
         del tensor["timedelta"]
-        assert tensor == target
+        assert_values_close(tensor, target)
 
         # test writing the tensor
         write_tensor(tensor, tempdir)
@@ -56,25 +63,28 @@ def test_get_tensor():
         del xml_tensor["timedelta"]
         # TODO investigate why the xml and cmt are different
         # (collected at different points in time?)
-        assert xml_tensor == {
-            "mrr": 1.915e28,
-            "mtt": 3.5e26,
-            "mpp": -1.949e28,
-            "mrt": -3.6e26,
-            "mrp": -2.536e28,
-            "mtp": 1.19e27,
-            "date_origin": UTCDateTime(2015, 9, 16, 22, 54, 32, 860000),
-            "lat": -31.5729,
-            "lon": -71.6744,
-            "depth": 22.44,
-            "time_shift": 5.0,
-            "half_duration": 38.05789881045027,
-            "centroid_lat": -31.637,
-            "centroid_lon": -71.741,
-            "centroid_depth": 23.3,
-            "datetime": "2015-09-16T22:54:32.860000",
-            "moment_mag": 3.1905117287303885e28,
-        }
+        assert_values_close(
+            xml_tensor,
+            {
+                "mrr": 1.915e28,
+                "mtt": 3.5e26,
+                "mpp": -1.949e28,
+                "mrt": -3.6e26,
+                "mrp": -2.536e28,
+                "mtp": 1.19e27,
+                "date_origin": UTCDateTime(2015, 9, 16, 22, 54, 32, 860000),
+                "lat": -31.5729,
+                "lon": -71.6744,
+                "depth": 22.44,
+                "time_shift": 5.0,
+                "half_duration": 38.05789881045027,
+                "centroid_lat": -31.637,
+                "centroid_lon": -71.741,
+                "centroid_depth": 23.3,
+                "datetime": "2015-09-16T22:54:32.860000",
+                "moment_mag": 3.1905117287303885e28,
+            },
+        )
     finally:
         shutil.rmtree(tempdir)
 

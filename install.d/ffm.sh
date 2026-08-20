@@ -53,6 +53,17 @@ then
     exit 1; 
 fi
 FORTRAN_DIR="${FINITEFAULT_DIR}/fortran_code"
+# check that the compile tools are available before starting
+for tool in make cpp gfortran; do
+    if ! command -v "$tool" > /dev/null; then
+        echo "Required tool '$tool' was not found.";
+        if [ "$(uname)" == 'Darwin' ]; then
+            echo "On macOS, install the Xcode Command Line Tools (xcode-select --install)";
+            echo "and gfortran via Homebrew (brew install gcc).";
+        fi
+        exit 1;
+    fi
+done
 # build fortran
 echo "Compiling the FORTRAN code with make"
 cd "${FORTRAN_DIR}" \
