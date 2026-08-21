@@ -548,7 +548,9 @@ def input_chen_near_field(
     .. warning::
 
         Make sure the filters of strong motion data agree with the values in
-        sampling_filter.json!
+        sampling_filter.json! Channels whose dictionary carries "low_freq"
+        and/or "high_freq" keys use those corners instead of the global values
+        (their data must be filtered consistently by the user).
     """
     directory = pathlib.Path(directory)
     if data_type == "strong":
@@ -589,6 +591,17 @@ def input_chen_near_field(
 
     with open(filename1, "w") as outfile:
         outfile.write("Corners: {} {}".format(low_freq, high_freq))
+        # optional per-channel corners, read by get_strong_motion when present
+        for file in traces_info:
+            if "low_freq" in file or "high_freq" in file:
+                outfile.write(
+                    "\n{} {} {} {}".format(
+                        file["name"],
+                        file["component"],
+                        file.get("low_freq", low_freq),
+                        file.get("high_freq", high_freq),
+                    )
+                )
 
     disp_or_vel = 0
     string = "{0:3d} {1:>5}{2:>9.3f}{3:>10.3f} 31{4:>5} {5} 0\n"
