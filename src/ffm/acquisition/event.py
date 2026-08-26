@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import List, Optional, Tuple
 
 import requests
 
@@ -18,10 +18,20 @@ def get_event_detail(eventid: str, retries: int = 3) -> Optional[dict]:
     return response.json()
 
 
-def get_product(detail: dict, product_type: str, source: str = "us"):
+def get_product(
+    detail: dict,
+    product_type: str,
+    source: str = "us",
+    additional_properties: List[Tuple[str, str]] = [],
+):
     """Get product from event detail"""
     products = detail["properties"]["products"]
     for product in products.get(product_type, []):
         if product["source"] == source:
+            for additional_prop in additional_properties:
+                key = additional_prop[0]
+                value = additional_prop[1]
+                if str(product.get("properties", {}).get(key)) != value:
+                    continue
             return product
     return None
