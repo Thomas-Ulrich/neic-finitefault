@@ -101,7 +101,7 @@ def teleseismic(
         ),
     ),
     host: str = typer.Option(
-        "137.227.230.97",
+        "edgecwb.usgs.gov",
         "-h",
         "--host",
         help="CWB host name. Defaults to public server.",
