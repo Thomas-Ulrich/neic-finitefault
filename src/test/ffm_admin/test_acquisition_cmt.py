@@ -44,7 +44,7 @@ DETAIL = {
                     "source": "us",
                     "properties": {
                         "magnitude": 6.4,
-                        "eventtime": 1771036057951,
+                        "eventtime": "2026-02-14T02:27:37.951Z",
                         "latitude": -14.8934,
                         "longitude": 166.6013,
                         "depth": 10,

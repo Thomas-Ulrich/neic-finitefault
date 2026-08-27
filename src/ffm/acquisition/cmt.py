@@ -75,9 +75,9 @@ class Cmt(BaseModel):
         longitude = float(origin["properties"]["longitude"])
         magnitude = float(origin["properties"]["magnitude"])
         place = detail_props["place"].split(",")[-1].strip()
-        time = datetime.fromtimestamp(
-            float(origin["properties"]["eventtime"]) / 1000, tz=timezone.utc
-        )
+        time = datetime.strptime(
+            origin["properties"]["eventtime"], "%Y-%m-%dT%H:%M:%S.%fZ"
+        ).replace(tzinfo=timezone.utc)
         return cls.from_moment_tensor(
             depth=depth,
             eventid=eventid,
