@@ -91,7 +91,7 @@ Python Install:
 Python Audit:
   script:
     - pip install pip-audit poethepoet
-    - poe run pip-audit
+    - poe run audit
   stage: audit
 
 ## -------------------------------------
