@@ -29,13 +29,18 @@ def get_product(
     products = detail["properties"]["products"]
     for product in products.get(product_type, []):
         if product["source"] == source:
+            invalid = False
             for additional_prop in additional_properties:
                 key = additional_prop[0]
                 value = additional_prop[1]
                 if str(product.get("properties", {}).get(key)) != value:
-                    continue
+                    invalid = True
+                    break
             for key in additional_keys:
                 if key not in product.get("properties", {}):
-                    continue
+                    invalid = True
+                    break
+            if invalid:
+                continue
             return product
     return None

@@ -63,7 +63,7 @@ class Cmt(BaseModel):
             product_type="moment-tensor",
             source=source,
             additional_properties=tensor_props,
-            additional_keys="sourcetime-duration",
+            additional_keys=["sourcetime-duration"],
         )
         if moment_tensor is None:
             tensor_error = f"Unable to get moment tensor with source ({source})"
