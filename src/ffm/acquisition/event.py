@@ -23,6 +23,7 @@ def get_product(
     product_type: str,
     source: str = "us",
     additional_properties: List[Tuple[str, str]] = [],
+    additional_keys: List[str] = [],
 ):
     """Get product from event detail"""
     products = detail["properties"]["products"]
@@ -32,6 +33,9 @@ def get_product(
                 key = additional_prop[0]
                 value = additional_prop[1]
                 if str(product.get("properties", {}).get(key)) != value:
+                    continue
+            for key in additional_keys:
+                if key not in product.get("properties", {}):
                     continue
             return product
     return None
