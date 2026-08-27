@@ -91,13 +91,18 @@ class Cmt(BaseModel):
         )
 
     @classmethod
-    def from_id(cls, eventid: str, source: str = "us"):
+    def from_id(cls, eventid: str, source: str = "us", allow_unreviewed: bool = False):
         """Get CMT from id in USGS feeds or ComCat"""
         # get event detail
         detail = get_event_detail(eventid)
         if detail is None:
             raise Exception(f"Error getting event with id '{eventid}'")
-        return cls.from_detail(detail=detail, eventid=eventid, source=source)
+        return cls.from_detail(
+            detail=detail,
+            eventid=eventid,
+            source=source,
+            allow_unreviewed=allow_unreviewed,
+        )
 
     @classmethod
     def from_moment_tensor(

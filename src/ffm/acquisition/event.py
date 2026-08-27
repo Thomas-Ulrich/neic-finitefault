@@ -37,7 +37,7 @@ def get_product(
                     invalid = True
                     break
             for key in additional_keys:
-                if key not in product.get("properties", {}):
+                if key not in list(product.get("properties", {}).keys()):
                     invalid = True
                     break
             if invalid:

@@ -23,11 +23,17 @@ def cmt(
     eventid: str = QUERY_EVENTID,
     source: str = QUERY_SOURCE,
     data_directory: Optional[pathlib.Path] = DATA_DIRECTORY,
+    allow_unreviewed: bool = typer.Option(
+        False,
+        "-u",
+        "--allow-unreviewed",
+        help="Allow use of unreviewed origin and moment-tensor products",
+    ),
 ):
     """Get an event detail from the USGS feeds (automatically routes to ComCat if event does not exist)
     and use an origin product from the specified source (default is 'us') to generate a CMT file
     """
-    cmt = Cmt.from_id(eventid=eventid, source=source)
+    cmt = Cmt.from_id(eventid=eventid, source=source, allow_unreviewed=allow_unreviewed)
     data_directory = validate_data_directory(data_directory)
     cmt.write(data_directory / f"{eventid}_cmt_CMT")
 
