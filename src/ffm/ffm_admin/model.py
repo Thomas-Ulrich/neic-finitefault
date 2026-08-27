@@ -130,8 +130,8 @@ def run(
         "-bmt",
         "--bypass-missing-types",
         help=(
-            "If a type is specified (e.g. -t strong) but there is no relevant data, "
-            "handle removint it the types list and proceed. An error is thrown "
+            "If a type is specified (e.g., -t strong) but there is no relevant data, "
+            "handle removing it from the types list and proceed. An error is thrown "
             "if there are no valid data types. (Currently only used by the auto_model)"
         ),
     ),

@@ -21,7 +21,7 @@ def load_ffm_model(
     len_dip: int = 4,
     directory: Union[pathlib.Path, str] = pathlib.Path(),
 ) -> dict:
-    """Load a finite fault model from an input file (e.g. Solution.txt)
+    """Load a finite fault model from an input file (e.g., Solution.txt)
 
     :param segments_data: The segment properties
     :type segments_data: dict
