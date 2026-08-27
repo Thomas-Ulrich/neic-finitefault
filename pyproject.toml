@@ -34,6 +34,9 @@ where = ["src"]
 "ffm" = "ffm.ffm_admin.ffm:app"
 
 [tool.poe.tasks]
+audit = [
+  { shell = "pip-audit --ignore-vuln PYSEC-2026-3628" }
+]
 fix = [
   { shell = "black src" },
   { shell = "isort src/ffm" }
