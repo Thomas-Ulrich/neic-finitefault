@@ -125,6 +125,16 @@ def run(
     velocity_model_file: pathlib.Path = typer.Option(
         None, "-v", "--velocity-model", help="Path to the velocity model file"
     ),
+    bypass_missing_types: bool = typer.Option(
+        False,
+        "-bmt",
+        "--bypass-missing-types",
+        help=(
+            "If a type is specified (e.g., -t strong) but there is no relevant data, "
+            "handle removing it from the types list and proceed. An error is thrown "
+            "if there are no valid data types. (Currently only used by the auto_model)"
+        ),
+    ),
 ):
     # set default data type
     chosen_data_types: List[str]
@@ -237,6 +247,7 @@ def run(
             st_response=st_response,
             config_path=config_file,
             directory=solution_folder,
+            bypass_missing_types=bypass_missing_types,
         )
 
 

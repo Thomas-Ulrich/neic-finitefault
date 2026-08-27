@@ -89,10 +89,9 @@ Python Install:
 ## -------------------------------------
 
 Python Audit:
-  allow_failure: true
   script:
-    - pip install pip-audit
-    - pip-audit --ignore-vuln CVE-2026-40192
+    - pip install pip-audit poethepoet
+    - poe audit
   stage: audit
 
 ## -------------------------------------

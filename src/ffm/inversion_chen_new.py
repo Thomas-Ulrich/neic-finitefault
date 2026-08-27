@@ -43,6 +43,7 @@ def automatic_usgs(
     st_response: bool = True,
     config_path: Optional[Union[str, pathlib.Path]] = None,
     directory: Union[pathlib.Path, str] = pathlib.Path(),
+    bypass_missing_types: bool = False,
 ):
     """Routine for automatically running the FFM modelling
 
@@ -62,6 +63,8 @@ def automatic_usgs(
     :type config_path: Optional[Union[str, pathlib.Path]], optional
     :param directory: Where the file(s) should be read/written, defaults to pathlib.Path()
     :type directory: Union[pathlib.Path, str], optional
+    :param bypass_missing_types: Skip and update types that don't have relevant data, defaults to False
+    :type bypass_missing_types: bool
     """
     directory = pathlib.Path(directory)
     logger = ml.create_log(
@@ -73,21 +76,37 @@ def automatic_usgs(
     if "gnss" in data_type:
         if os.path.isfile(os.path.join(directory, "data", "gnss_data")):
             copy2(os.path.join(directory, "data", "gnss_data"), directory)
+        elif bypass_missing_types:
+            data_type = __update_types(data_type, types_to_remove=["gnss"])
+        else:
+            raise Exception("No GNSS data files found")
+
     imagery_files = None
     if "imagery" in data_type:
         imagery_files = glob.glob(os.path.join(directory, "data", "imagery*txt"))
-        for file in imagery_files:
-            if os.path.isfile(file):
-                copy2(file, directory)
-        imagery_files = glob.glob(os.path.join(directory, "imagery*txt"))
+        if len(imagery_files) > 0:
+            for file in imagery_files:
+                if os.path.isfile(file):
+                    copy2(file, directory)
+            imagery_files = glob.glob(os.path.join(directory, "imagery*txt"))
+        elif bypass_missing_types:
+            data_type = __update_types(data_type, types_to_remove=["imagery"])
+        else:
+            raise Exception("No imagery data files found")
+
     data_dir = directory / "data"
     data_prop = tp.properties_json(
         tensor_info, dt_cgnss=dt_cgnss, data_directory=directory
     )
     time2 = time.time()
     logger.info("Process data")
-    processing(
-        tensor_info, data_type, data_prop, st_response=st_response, directory=data_dir
+    data_type = processing(
+        tensor_info,
+        data_type,
+        data_prop,
+        st_response=st_response,
+        directory=data_dir,
+        bypass_missing_types=bypass_missing_types,
     )
     time2 = time.time() - time2
     logger.info("Time spent processing traces: {}".format(time2))
@@ -805,7 +824,8 @@ def processing(
     data_prop: dict,
     st_response: bool = True,
     directory: Union[pathlib.Path, str] = pathlib.Path(),
-):
+    bypass_missing_types: bool = False,
+) -> List[str]:
     """Run all waveform data processing
 
     :param tensor_info: The moment tensor information
@@ -818,6 +838,10 @@ def processing(
     :type st_response: bool, optional
     :param directory: Where the file(s) should be read/written, defaults to pathlib.Path()
     :type directory: Union[pathlib.Path, str], optional
+    :param bypass_missing_types: Skip and update types that don't have relevant data, defaults to False
+    :type bypass_missing_types: bool
+    :return: The list of processed data types (updated if data not found and bypass_missing_types is true)
+    :rtype: List[str]
     """
     directory = pathlib.Path(directory)
     tele_files = (
@@ -840,25 +864,52 @@ def processing(
         os.path.join(directory, "*L[HXY][ENZ].SAC")
     )
     if "body" in data_type:
-        proc.select_process_tele_body(
-            tele_files, tensor_info, data_prop, directory=directory
-        )
+        if len(tele_files) > 0:
+            proc.select_process_tele_body(
+                tele_files, tensor_info, data_prop, directory=directory
+            )
+        elif bypass_missing_types:
+            data_type = __update_types(data_type, types_to_remove=["body"])
+        else:
+            raise Exception("No teleseismic data files found")
     if "surf" in data_type:
-        proc.select_process_surf_tele(
-            tele_files, tensor_info, data_prop, directory=directory
-        )
+        if len(tele_files) > 0:
+            proc.select_process_surf_tele(
+                tele_files, tensor_info, data_prop, directory=directory
+            )
+        elif bypass_missing_types:
+            data_type = __update_types(data_type, types_to_remove=["surf"])
+        else:
+            raise Exception("No teleseismic data files found")
     if "strong" in data_type:
-        proc.select_process_strong(
-            strong_files,
-            tensor_info,
-            data_prop,
-            remove_response=st_response,
-            directory=directory,
-        )
+        if len(strong_files) > 0:
+            try:
+                proc.select_process_strong(
+                    strong_files,
+                    tensor_info,
+                    data_prop,
+                    remove_response=st_response,
+                    directory=directory,
+                )
+            except RuntimeError as e:
+                if bypass_missing_types:
+                    data_type = __update_types(data_type, types_to_remove=["strong"])
+                else:
+                    raise e
+        elif bypass_missing_types:
+            data_type = __update_types(data_type, types_to_remove=["strong"])
+        else:
+            raise Exception("No strong motion data files found")
     if "cgnss" in data_type:
-        proc.select_process_cgnss(
-            cgnss_files, tensor_info, data_prop, directory=directory
-        )
+        if len(cgnss_files) > 0:
+            proc.select_process_cgnss(
+                cgnss_files, tensor_info, data_prop, directory=directory
+            )
+        elif bypass_missing_types:
+            data_type = __update_types(data_type, types_to_remove=["cgnss"])
+        else:
+            raise Exception("No cgnss data files found")
+    return data_type
 
 
 def writing_inputs0(
@@ -1208,3 +1259,27 @@ def __ask_velrange(
     min_vel = float(lines[1][5])
     max_vel = float(lines[1][6])
     return min_vel, max_vel
+
+
+def __update_types(
+    types: List[str], types_to_add: List[str] = [], types_to_remove: List[str] = []
+) -> List[str]:
+    """
+    Update data types being used/processed
+
+    :param types: The initial list of data types
+    :type types: List[str]
+    :param types_to_add: A list of types to add to the data types list
+    :type types_to_add: List[str]
+    :param types_to_remove: A list of types to remove from the data types list
+    :type types_to_remove: List[str]
+    :return: The updated list of data types
+    :rtype: List[str]
+    """
+    types += types_to_add
+    for removed in types_to_remove:
+        types = [t for t in types if t != removed]
+
+    if len(types) == 0:
+        raise Exception("No valid data types")
+    return types

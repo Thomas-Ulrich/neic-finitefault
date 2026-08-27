@@ -17,7 +17,7 @@ RESULTS_DIR = END_TO_END_DIR / "results"
 def assert_values_close(new, target, rtol: float = 1e-8):
     """Recursively assert equality of (possibly nested) values, comparing
     floats with a relative tolerance to absorb tiny platform-dependent
-    differences (e.g. x86 vs arm64 libm/LAPACK). Everything else is exact."""
+    differences (e.g., x86 vs arm64 libm/LAPACK). Everything else is exact."""
     if isinstance(new, dict) and isinstance(target, dict):
         assert new.keys() == target.keys(), (new.keys(), target.keys())
         for key in new:
@@ -34,7 +34,7 @@ def assert_values_close(new, target, rtol: float = 1e-8):
 
 def assert_text_close(new_text: str, target_text: str, rtol: float = 1e-8):
     """Assert two text blobs are equal, allowing tiny platform-dependent
-    floating point differences (e.g. x86 vs arm64 libm/LAPACK) in numeric
+    floating point differences (e.g., x86 vs arm64 libm/LAPACK) in numeric
     tokens. Non-numeric tokens must match exactly."""
     new_lines = new_text.splitlines()
     target_lines = target_text.splitlines()
@@ -92,7 +92,7 @@ def assert_solution_equivalent(
             new_moment += new_values[10]
             target_moment += target_values[10]
         else:
-            # other numeric lines (e.g. segment corner coordinates) are geometry
+            # other numeric lines (e.g., segment corner coordinates) are geometry
             np.testing.assert_allclose(
                 new_values, target_values, rtol=geometry_rtol, err_msg=new_line
             )
