@@ -79,7 +79,7 @@ def automatic_usgs(
         elif bypass_missing_types:
             data_type = __update_types(data_type, types_to_remove=["gnss"])
         else:
-            raise Exception(f"No GNSS data files found")
+            raise Exception("No GNSS data files found")
 
     imagery_files = None
     if "imagery" in data_type:
@@ -92,7 +92,7 @@ def automatic_usgs(
         elif bypass_missing_types:
             data_type = __update_types(data_type, types_to_remove=["imagery"])
         else:
-            raise Exception(f"No imagery data files found")
+            raise Exception("No imagery data files found")
 
     data_dir = directory / "data"
     data_prop = tp.properties_json(
@@ -871,7 +871,7 @@ def processing(
         elif bypass_missing_types:
             data_type = __update_types(data_type, types_to_remove=["body"])
         else:
-            raise Exception(f"No teleseismic data files found")
+            raise Exception("No teleseismic data files found")
     if "surf" in data_type:
         if len(tele_files) > 0:
             proc.select_process_surf_tele(
@@ -880,7 +880,7 @@ def processing(
         elif bypass_missing_types:
             data_type = __update_types(data_type, types_to_remove=["surf"])
         else:
-            raise Exception(f"No teleseismic data files found")
+            raise Exception("No teleseismic data files found")
     if "strong" in data_type:
         if len(strong_files) > 0:
             try:
@@ -899,7 +899,7 @@ def processing(
         elif bypass_missing_types:
             data_type = __update_types(data_type, types_to_remove=["strong"])
         else:
-            raise Exception(f"No teleseismic data files found")
+            raise Exception("No strong motion data files found")
     if "cgnss" in data_type:
         if len(cgnss_files) > 0:
             proc.select_process_cgnss(
@@ -907,6 +907,8 @@ def processing(
             )
         elif bypass_missing_types:
             data_type = __update_types(data_type, types_to_remove=["cgnss"])
+        else:
+            raise Exception("No cgnss data files found")
     return data_type
 
 
