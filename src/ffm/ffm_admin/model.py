@@ -102,13 +102,13 @@ def run(
         help="The maximum slip to be used in checkerboard and forward routines",
     ),
     option: ModellingOption = typer.Option(
-        ...,
+        None,
         "-o",
         "--option",
         help="The model output option to be used in checkerboard and forward routines",
     ),
     option2: ModellingOption2 = typer.Option(
-        ...,
+        None,
         "-o2",
         "--option2",
         help="The second model output option to be used in checkerboard routines",
@@ -158,6 +158,27 @@ def run(
         segments_file = directory / "segments_data.json"
         paths_to_validate += [segments_file]
     validate_files(paths_to_validate)
+
+    # Enforce option(s) only when required by the chosen modelling routine
+    if modelling_routine in (
+        ModellingRoutine.checkerboard_model,
+        ModellingRoutine.forward_model,
+    ):
+        if option is None:
+            typer.echo(
+                "Error: --option / -o is required for checkerboard and forward modelling routines.",
+                err=True,
+            )
+            raise typer.Exit(1)
+
+    if modelling_routine == ModellingRoutine.checkerboard_model:
+        if option2 is None:
+            typer.echo(
+                "Error: --option2 / -o2 is required for checkerboard modelling routine.",
+                err=True,
+            )
+            raise typer.Exit(1)
+
 
     # get default directories
     default_directories = default_dirs(config_path=config_file)
