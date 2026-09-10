@@ -14,6 +14,7 @@ from .testutils import (
     END_TO_END_DIR,
     HOME,
     RESULTS_DIR,
+    assert_values_close,
     get_cgnss_json,
     get_imagery_json,
     get_sampling_filter,
@@ -158,7 +159,9 @@ def test_create_ff():
 def test_fill_dicts():
     from ffm.ffm_admin.manage import app
 
-    tempdir = pathlib.Path(tempfile.mkdtemp())
+    # resolve() so the expected paths match the canonicalized paths the code
+    # writes (on macOS mkdtemp returns /var/..., a symlink to /private/var/...)
+    tempdir = pathlib.Path(tempfile.mkdtemp()).resolve()
     try:
         shutil.copyfile(
             RESULTS_DIR / "NP1" / "tensor_info.json",
@@ -180,10 +183,10 @@ def test_fill_dicts():
         assert result.exit_code == 0
 
         # test imagery values (invalid ramp)
-        dummy_insara = tempdir / "insar_ascending.txt"
+        dummy_insara = tempdir / "imagery_insar_ascending.txt"
         with open(dummy_insara, "w"):
             pass
-        dummy_insard = tempdir / "insar_descending.txt"
+        dummy_insard = tempdir / "imagery_insar_descending.txt"
         with open(dummy_insard, "w"):
             pass
         result1 = runner.invoke(
@@ -216,16 +219,16 @@ def test_fill_dicts():
         with open(tempdir / "imagery_data.json") as f:
             imagery_dict = json.load(f)
         assert imagery_dict == {
-            "insar_ascending": [
+            "imagery_insar_ascending": [
                 {
-                    "name": f"{str(tempdir)}/insar_ascending.txt",
+                    "name": f"{str(tempdir)}/imagery_insar_ascending.txt",
                     "ramp": "linear",
                     "weight": 1.0,
                 },
             ],
-            "insar_descending": [
+            "imagery_insar_descending": [
                 {
-                    "name": f"{str(tempdir)}/insar_descending.txt",
+                    "name": f"{str(tempdir)}/imagery_insar_descending.txt",
                     "ramp": "static",
                     "weight": 1.0,
                 },
@@ -395,13 +398,15 @@ def test_model_props():
             annealing_data = json.load(ad)
         with open(RESULTS_DIR / "NP1" / "annealing_prop.json") as ad:
             target_annealing = json.load(ad)
-        assert annealing_data == target_annealing
+        # seismic_moment derives from LAPACK eigenvalues, which differ in the
+        # last ulps across platforms/BLAS backends, so compare with tolerance
+        assert_values_close(annealing_data, target_annealing)
         # compare model_space
         with open(tempdir / "model_space.json") as md:
             model_data = json.load(md)
         with open(RESULTS_DIR / "NP1" / "model_space.json") as md:
             target_model = json.load(md)
-        assert model_data == target_model
+        assert_values_close(model_data, target_model)
     finally:
         print("Cleaning up test directory.")
         shutil.rmtree(tempdir)
@@ -885,12 +890,12 @@ def test_update_inputs():
         with open(tempdir / "imagery_data.json", "w") as f:
             json.dump(new_imagery, f)
         shutil.copyfile(
-            RESULTS_DIR / "NP1" / "insar_ascending.txt",
-            tempdir / "insar_ascending.txt",
+            RESULTS_DIR / "NP1" / "imagery_insar_ascending.txt",
+            tempdir / "imagery_insar_ascending.txt",
         )
         shutil.copyfile(
-            RESULTS_DIR / "NP1" / "insar_descending.txt",
-            tempdir / "insar_descending.txt",
+            RESULTS_DIR / "NP1" / "imagery_insar_descending.txt",
+            tempdir / "imagery_insar_descending.txt",
         )
         shutil.copyfile(
             RESULTS_DIR / "NP1" / "static_data.json",
@@ -1101,7 +1106,9 @@ def test_tensor_from_gcmt():
             target = json.load(f)
         del target["timedelta"]
         del data["timedelta"]
-        assert data == target
+        # moment_mag derives from LAPACK eigenvalues, which differ in the
+        # last ulps across platforms/BLAS backends, so compare with tolerance
+        assert_values_close(data, target)
     finally:
         shutil.rmtree(tempdir)
 

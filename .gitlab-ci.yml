@@ -52,8 +52,8 @@ workflow:
     - if: $CI_COMMIT_BRANCH
 
 stages:
-  - audit
   - init
+  - audit
   - test
 
 .fork: &fork
@@ -62,17 +62,6 @@ stages:
     RUN_ALL: "true"
     RUNNER: "false"
     RUN_END_TO_END: "true"
-
-## -------------------------------------
-#  Audit Stage
-## -------------------------------------
-
-Python Audit:
-  allow_failure: true
-  script:
-    - pip install pip-audit
-    - pip-audit --ignore-vuln CVE-2026-40192
-  stage: audit
 
 ## -------------------------------------
 #  Init Stage
@@ -85,11 +74,25 @@ Fortran Install:
     expire_in: 1 week
     paths:
       - fortran_code
-  needs: []
   script:
     - apt install gfortran make gcc -y
     - bash install.d/ffm.sh "$(pwd)"
   stage: init
+
+Python Install:
+  script:
+    - echo "Install and cache"
+  stage: init
+
+## -------------------------------------
+#  Audit Stage
+## -------------------------------------
+
+Python Audit:
+  script:
+    - pip install pip-audit poethepoet
+    - poe audit
+  stage: audit
 
 ## -------------------------------------
 #  Test Stage

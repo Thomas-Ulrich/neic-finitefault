@@ -24,6 +24,7 @@ from ffm.input_files import (
 
 from .testutils import (
     RESULTS_DIR,
+    assert_text_close,
     get_cgnss_json,
     get_imagery_json,
     get_sampling_filter,
@@ -113,11 +114,12 @@ def test_input_chen_imagery():
         with open(tempdir / "imagery_data.json", "w") as tw:
             json.dump(new_imagery, tw)
         shutil.copyfile(
-            RESULTS_DIR / "NP1" / "insar_ascending.txt", tempdir / "insar_ascending.txt"
+            RESULTS_DIR / "NP1" / "imagery_insar_ascending.txt",
+            tempdir / "imagery_insar_ascending.txt",
         )
         shutil.copyfile(
-            RESULTS_DIR / "NP1" / "insar_descending.txt",
-            tempdir / "insar_descending.txt",
+            RESULTS_DIR / "NP1" / "imagery_insar_descending.txt",
+            tempdir / "imagery_insar_descending.txt",
         )
 
         input_chen_imagery(tempdir)
@@ -157,7 +159,9 @@ def test_input_chen_near_field():
                 new_data = nd.read()
             with open(RESULTS_DIR / f, "r") as t:
                 target = t.read()
-            assert new_data == target
+            # the written moment derives from LAPACK eigenvalues, which differ
+            # in the last ulps across platforms/BLAS backends
+            assert_text_close(new_data, target)
 
         # test for cgnss
         new_cgnss = update_manager_file_locations(
@@ -182,7 +186,7 @@ def test_input_chen_near_field():
                 new_data = nd.read()
             with open(RESULTS_DIR / f, "r") as t:
                 target = t.read()
-            assert new_data == target
+            assert_text_close(new_data, target)
 
     finally:
         shutil.rmtree(tempdir)

@@ -440,9 +440,9 @@ def PlotMap(
     if stations_gnss is not None:
         print("...Plotting Static GNSS Stations")
         for name, sta_lat, sta_lon, obs, syn, error in stations_gnss2:
-            gnss_z_obs, gnss_n_obs, gnss_e_obs = obs  # type: ignore [misc]
-            gnss_z_syn, gnss_n_syn, gnss_e_syn = syn  # type: ignore [misc]
-            err_z, err_n, err_e = error  # type: ignore [misc]
+            gnss_z_obs, gnss_n_obs, gnss_e_obs = np.array(obs)  # type: ignore [misc]
+            gnss_z_syn, gnss_n_syn, gnss_e_syn = np.array(syn)  # type: ignore [misc]
+            err_z, err_n, err_e = np.array(error)  # type: ignore [misc]
 
             staticv_obs = pd.DataFrame(
                 data={

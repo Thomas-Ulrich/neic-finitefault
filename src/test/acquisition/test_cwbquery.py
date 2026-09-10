@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
 import pathlib
+from datetime import datetime, timezone
 from unittest import mock
 
 from ffm.acquisition.cwbquery import CwbQuery
@@ -42,6 +42,7 @@ def test_irisquery_end_to_end():
             mocked_process.returncode = 0
 
             commands = detail_cwbquery.get_data(
+                host="host",
                 directory="here",
                 edge_cwb_jar_path="CWBQuery.jar",
                 java="/java",
@@ -51,9 +52,9 @@ def test_irisquery_end_to_end():
             assert len(commands) == 2
             assert (
                 commands[0]
-                == '/java -jar CWBQuery.jar -s US.....BH. -delazc 30:90:-14.8934:166.6013 -b "2026/02/14 02:27:37" -d 3000.0 -nogaps -sacpz nm'
+                == '/java -jar CWBQuery.jar -s US.....BH. -h host -delazc 30:90:-14.8934:166.6013 -b "2026/02/14 02:27:37" -d 3000.0 -nogaps -sacpz nm'
             )
             assert (
                 commands[1]
-                == '/java -jar CWBQuery.jar -s USSTAT1BH* -delazc 30:90:-14.8934:166.6013 -b "2026/02/14 02:27:37" -d 3000.0 -nogaps -sacpz nm'
+                == '/java -jar CWBQuery.jar -s USSTAT1BH* -h host -delazc 30:90:-14.8934:166.6013 -b "2026/02/14 02:27:37" -d 3000.0 -nogaps -sacpz nm'
             )
