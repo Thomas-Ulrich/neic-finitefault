@@ -18,6 +18,7 @@ coverage.xml
 dist
 htmlcov
 src/neic_finitefault.egg-info
+.coveragerc
 
 # fortran files
 fortran_code/src_dc_f95/bessel.f
