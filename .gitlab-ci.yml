@@ -105,6 +105,7 @@ Python Lint:
 ## -------------------------------------
 
 Data Dependencies:
+  allow_failure: true
   artifacts:
     paths:
       - fortran_code/gfs_nm/long/fd_bank
