@@ -1,14 +1,9 @@
 import json
-import math
-import multiprocessing
 import pathlib
-import time
-from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Optional
+from typing import Dict, List
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from ffm.acquisition.event import get_event_detail, get_product
 from ffm.acquisition.waveformquery import WaveformQuery
 
 

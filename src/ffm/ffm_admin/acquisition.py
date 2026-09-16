@@ -1,13 +1,14 @@
 import json
 import pathlib
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import typer
 
 from ffm.acquisition.cmt import Cmt
 from ffm.acquisition.cwbquery import CwbQuery
 from ffm.acquisition.irisquery import IrisQuery
+from ffm.acquisition.teleseismicquery import TeleseismicQuery
 from ffm.ffm_admin.common_args import (
     DATA_DIRECTORY,
     QUERY_EVENTID,
@@ -124,10 +125,11 @@ def teleseismic(
     provided in a station file"""
     data_directory = validate_data_directory(data_directory, make_directory=True)
 
+    waveform_query: Union[CwbQuery, IrisQuery]
     if edge_cwb_jar_path is not None:
         edge_cwb_jar_path = edge_cwb_jar_path.resolve()
         java = java.resolve()
-        waveform_query = CwbQuery.from_id(eventid=eventid, source=source)
+        waveform_query = CwbQuery(eventid=eventid, source=source)
     else:
         waveform_query = IrisQuery("teleseismic", eventid=eventid, source=source)
     waveform_query.query.depth = depth or waveform_query.query.depth
@@ -149,7 +151,7 @@ def teleseismic(
         stations_data = None
 
     if edge_cwb_jar_path is not None:
-        waveform_query.get_data(
+        waveform_query.get_data(  # type: ignore [union-attr]
             directory=data_directory,
             edge_cwb_jar_path=edge_cwb_jar_path,
             host=host,
@@ -158,11 +160,11 @@ def teleseismic(
             stations=stations_data,
         )
     else:
-        stream1 = waveform_query.get_teleseismic_data(
+        stream1 = waveform_query.get_teleseismic_data(  # type: ignore [union-attr]
             networks=networks, stations=stations_data, debug=debug
         )
-        stream2 = waveform_query.get_responses(stream=stream1, debug=debug)
-        waveform_query.write_data(directory=data_directory, stream=stream2)
+        stream2 = waveform_query.get_responses(stream=stream1, debug=debug)  # type: ignore [union-attr]
+        waveform_query.write_data(directory=data_directory, stream=stream2)  # type: ignore [union-attr]
 
 
 @app.command(help="Get strong motion data from EARTHSCOPE")
