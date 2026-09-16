@@ -1,8 +1,8 @@
 import datetime
 import json
+import logging
 import pathlib
 import time
-from enum import Enum
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -22,10 +22,7 @@ from ffm.input_files import (
     inputs_simmulated_annealing,
 )
 from ffm.input_files import model_space as model_space_update
-from ffm.input_files import (
-    plane_for_chen,
-    write_velmodel,
-)
+from ffm.input_files import plane_for_chen, write_velmodel
 from ffm.management import default_dirs
 from ffm.many_events import (
     get_model_space_events,
@@ -84,7 +81,13 @@ def _parse_imagery(value: str) -> Tuple[pathlib.Path, Optional[str]]:
         return filepath, ramp
 
 
-@app.command(help="Acquire strong motion and teleseismic bodywave data")
+@app.command(
+    help=(
+        "Acquire strong motion and teleseismic bodywave data.\n"
+        "NOTICE: 'acquire' deprecated as of 1.2.0, use 'ffm get-data' or modules in ffm.acquisition. "
+        "To be removed after 2.0.0."
+    )
+)
 def acquire(
     directory: pathlib.Path = typer.Argument(..., help="Path to the data directory"),
     gcmt_tensor_file: pathlib.Path = typer.Argument(
@@ -97,6 +100,10 @@ def acquire(
         help="Type to add to the data_types list, default is [strong, body]",
     ),
 ):
+    logging.warning(
+        "'acquire' deprecated as of 1.2.0, use 'ffm get-data' or modules in ffm.acquisition. "
+        "To be removed in 2.1.0."
+    )
     # get the tensor information
     tensor_info = get_tensor(cmt_file=gcmt_tensor_file)
     event_time = tensor_info["datetime"]
