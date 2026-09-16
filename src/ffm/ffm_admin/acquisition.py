@@ -193,7 +193,7 @@ def strong_motion(
         0, "-min", "--min-distance", help="The minimum distance in decimal degrees"
     ),
     max_distance: float = typer.Option(
-        10, "-max", "--max-distance", help="The max distance in decimal degrees"
+        5, "-max", "--max-distance", help="The max distance in decimal degrees"
     ),
     seconds_before: int = typer.Option(
         default=60,

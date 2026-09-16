@@ -17,7 +17,7 @@ class StrongMotionQuery(WaveformQuery):
         0, description="The minimum distance from the hypocenter"
     )
     max_distance: float = Field(
-        10, description="The maximum distance from the hypocenter"
+        5, description="The maximum distance from the hypocenter"
     )
     seconds_before: float = Field(
         60,
