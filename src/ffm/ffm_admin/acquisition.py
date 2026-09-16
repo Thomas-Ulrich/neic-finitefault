@@ -207,7 +207,7 @@ def strong_motion(
         ["C", "C1", "II", "IU"],
         "-n",
         "--networks",
-        help=("Networks to search. If not specified, all networks are accepted."),
+        help=("Networks to search. If not specified, default networks used."),
     ),
     include_gfz: bool = typer.Option(
         False,
