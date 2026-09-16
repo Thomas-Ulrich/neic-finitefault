@@ -51,19 +51,22 @@ class IrisQuery:
         traces = []
         for network in networks:
             print(f"Querying network: {network}")
-            inventory: Inventory = client.get_stations(
-                channel="HN*",
-                endtime=UTCDateTime(self.query.endtime),
-                latitude=self.query.latitude,
-                level="response",
-                longitude=self.query.longitude,
-                maxradius=self.query.max_distance,
-                minradius=self.query.min_distance,
-                network=network,
-                starttime=UTCDateTime(self.query.starttime),
-            )
-            for station in inventory.networks[0].stations:
-                traces += self._get_data(network, station.code, "HN*", debug)
+            try:
+                inventory: Inventory = client.get_stations(
+                    channel="HN*",
+                    endtime=UTCDateTime(self.query.endtime),
+                    latitude=self.query.latitude,
+                    level="response",
+                    longitude=self.query.longitude,
+                    maxradius=self.query.max_distance,
+                    minradius=self.query.min_distance,
+                    network=network,
+                    starttime=UTCDateTime(self.query.starttime),
+                )
+                for station in inventory.networks[0].stations:
+                    traces += self._get_data(network, station.code, "HN*", debug)
+            except:
+                logging.info(f"No data for {network}")
         if include_gfz:
             print(f"Querying network: CX for GFZ")
             try:
