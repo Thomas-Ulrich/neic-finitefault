@@ -312,15 +312,19 @@ def worker3(
         response_data = "SAC_PZs_{}_{}_{}_{}".format(netwk, statn, channel, loc_code)
         if len(loc_code) == 0:
             response_data = "SAC_PZs_{}_{}_{}___".format(netwk, statn, channel)
-        iris_client.sacpz(
-            netwk,
-            statn,
-            loc_code,
-            channel,
-            t1,
-            t2,
-            filename=str(waveform_directory / response_data),
+
+
+        fdsn_client = Client("EARTHSCOPE")
+        inv = fdsn_client.get_stations(
+            network=netwk,
+            station=statn,
+            location=loc_code if loc_code else "--",
+            channel=channel,
+            starttime=t1,
+            endtime=t2,
+            level="response",
         )
+        inv.write(str(waveform_directory / response_data), format="SACPZ")
     except Exception as e:
         print(
             f"Exception in worker 3 for {netwk}, {statn}, {loc_code}, {channel}: "
