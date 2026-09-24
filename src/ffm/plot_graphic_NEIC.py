@@ -28,10 +28,8 @@ from matplotlib.axes import Axes
 from matplotlib.colors import ListedColormap  # type: ignore
 from matplotlib.image import AxesImage  # type: ignore
 from obspy.imaging.beachball import beach, beachball  # type: ignore
+from obspy.imaging.beachball import MomentTensor, mt2plane, aux_plane # type: ignore
 from pyproj import Geod  # type: ignore
-from pyrocko import moment_tensor as pmt  # type: ignore
-from pyrocko import plot  # type: ignore
-from pyrocko.plot import beachball  # type: ignore
 from scipy.interpolate import griddata  # type: ignore
 
 #
@@ -2727,17 +2725,54 @@ def shakemap_polygon(
         txtout.write(corner_1 + "\n")
 
 
+from obspy.imaging.beachball import beach, MomentTensor, mt2plane, aux_plane
+
+
+def _sdr_moment_to_mt_use(strike, dip, rake, m0):
+    """Convert strike/dip/rake (degrees) + scalar moment to the six
+    independent moment tensor components in the Harvard/GCMT (USE:
+    Up-South-East) convention used by obspy, via the Aki & Richards
+    NED formulas."""
+    s, d, r = np.radians([strike, dip, rake])
+
+    mxx = -m0 * (np.sin(d) * np.cos(r) * np.sin(2 * s)
+                 + np.sin(2 * d) * np.sin(r) * np.sin(s) ** 2)
+    myy = m0 * (np.sin(d) * np.cos(r) * np.sin(2 * s)
+                - np.sin(2 * d) * np.sin(r) * np.cos(s) ** 2)
+    mzz = m0 * np.sin(2 * d) * np.sin(r)
+    mxy = m0 * (np.sin(d) * np.cos(r) * np.cos(2 * s)
+                + 0.5 * np.sin(2 * d) * np.sin(r) * np.sin(2 * s))
+    mxz = -m0 * (np.cos(d) * np.cos(r) * np.cos(s)
+                 + np.cos(2 * d) * np.sin(r) * np.sin(s))
+    myz = -m0 * (np.cos(d) * np.cos(r) * np.sin(s)
+                 - np.cos(2 * d) * np.sin(r) * np.cos(s))
+
+    # NED (x=N, y=E, z=D) -> USE (r=up, t=south, p=east), GCMT convention
+    mrr, mtt, mpp = mzz, mxx, myy
+    mrt, mrp, mtp = mxz, -myz, -mxy
+    return np.array([mrr, mtt, mpp, mrt, mrp, mtp])
+
+
+def _plot_beachball(axes, mt6, size=0.6):
+    collection = beach(mt6.tolist(), xy=(0.5, 0.5), width=size,
+                        linewidth=1.0, facecolor="blue")
+    axes.add_collection(collection)
+    axes.set_xlim(0, 1)
+    axes.set_ylim(0, 1)
+    axes.set_aspect("equal")
+
+
+def _planes_from_mt6(mt6):
+    mt = MomentTensor(*mt6.tolist(), 0)
+    np1 = mt2plane(mt)
+    s2, d2, r2 = aux_plane(np1.strike, np1.dip, np1.rake)
+    return np1, (s2, d2, r2)
+
+
 def calculate_cumulative_moment_tensor(
     solution: dict, directory: Union[pathlib.Path, str] = pathlib.Path()
 ):
-    """Calculate the cumulative moment tensor
-
-    :param solution: The kinematic solution read from Solution.txt
-    :type solution: dict
-    :param directory: Whwere the segments file is located and where to write to,
-                    defaults to pathlib.Path()
-    :type directory: Union[pathlib.Path, str], optional
-    """
+    """Calculate the cumulative moment tensor (obspy version)."""
     directory = pathlib.Path(directory)
     print("Calculating Cumulative Moment Tensor...")
 
@@ -2747,17 +2782,11 @@ def calculate_cumulative_moment_tensor(
 
     slip = solution["slip"]
     rake = solution["rake"]
-    rupture_time = solution["rupture_time"]
-    trise = solution["trise"]
-    tfall = solution["tfall"]
-    lat = solution["lat"]
-    lon = solution["lon"]
-    depth = solution["depth"]
     moment = solution["moment"]
 
     num_seg = len(solution["slip"])
 
-    Mm6 = [0, 0, 0, 0, 0, 0]
+    Mm6 = np.zeros(6)
     total_moment = 0
     fig = plt.figure(figsize=(num_seg + 2.0, 2.0), dpi=300)
     fig.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
@@ -2768,48 +2797,28 @@ def calculate_cumulative_moment_tensor(
         axes.set_axis_off()
         strk = segments[kseg]["strike"]
         dip = segments[kseg]["dip"]
-        Mm6_seg = [0, 0, 0, 0, 0, 0]
+        Mm6_seg = np.zeros(6)
         seg_moment = sum(moment[kseg].flatten())
         seg_Mw = (2.0 / 3) * (np.log10(seg_moment * 1e-7) - 9.1)
         print("   Mw:", seg_Mw)
         total_moment += seg_moment
+
         for subfault in range(len(slip[kseg].flatten())):
-            Mmt_seg = pmt.MomentTensor(
-                strike=strk,
-                dip=dip,
-                rake=rake[kseg].flatten()[subfault],
-                scalar_moment=moment[kseg].flatten()[subfault],
+            Mm6_seg += _sdr_moment_to_mt_use(
+                strk,
+                dip,
+                rake[kseg].flatten()[subfault],
+                moment[kseg].flatten()[subfault],
             )
-            Mm6_seg = [
-                Mm6_seg[0] + Mmt_seg.mnn,
-                Mm6_seg[1] + Mmt_seg.mee,
-                Mm6_seg[2] + Mmt_seg.mdd,
-                Mm6_seg[3] + Mmt_seg.mne,
-                Mm6_seg[4] + Mmt_seg.mnd,
-                Mm6_seg[5] + Mmt_seg.med,
-            ]
-        print("   MT:", Mm6_seg)
-        beachball.plot_beachball_mpl(
-            pmt.as_mt(Mm6_seg),
-            axes,
-            size=60,
-            position=(0.5, 0.5),
-            beachball_type="full",
-            color_t=plot.mpl_color("blue"),
-            linewidth=1.0,
-        )
-        Mm6 = [
-            Mm6[0] + Mm6_seg[0],
-            Mm6[1] + Mm6_seg[1],
-            Mm6[2] + Mm6_seg[2],
-            Mm6[3] + Mm6_seg[3],
-            Mm6[4] + Mm6_seg[4],
-            Mm6[5] + Mm6_seg[5],
-        ]
-        (s1, d1, r1), (s2, d2, r2) = pmt.as_mt(Mm6_seg).both_strike_dip_rake()
-        axes.text(0.1, 0.8, "Segment " + str(kseg) + "\n Mw" + "{:0.2f}".format(seg_Mw))
-        axes.text(0.1, 0.1, "s1/d1/r1: %d, %d, %d" % (s1, d1, r1), fontsize=5)
-        axes.text(0.1, 0.05, "s2/d2/r2: %d, %d, %d" % (s2, d2, r2), fontsize=5)
+        print("   MT:", Mm6_seg.tolist())
+
+        _plot_beachball(axes, Mm6_seg, size=0.6)
+        np1, (s2, d2, r2) = _planes_from_mt6(Mm6_seg)
+
+        Mm6 += Mm6_seg
+        axes.text(0.1, 0.92, "Segment " + str(kseg) + "\n Mw" + "{:0.2f}".format(seg_Mw))
+        axes.text(0.1, 0.07, "s1/d1/r1: %d, %d, %d" % (np1.strike, np1.dip, np1.rake), fontsize=5)
+        axes.text(0.1, 0.02, "s2/d2/r2: %d, %d, %d" % (s2, d2, r2), fontsize=5)
         if kseg < num_seg - 1:
             axes.text(1.05, 0.5, "+")
         else:
@@ -2817,26 +2826,18 @@ def calculate_cumulative_moment_tensor(
 
     axes = fig.add_subplot(1, num_seg + 1, num_seg + 1)
     axes.set_axis_off()
-    beachball.plot_beachball_mpl(
-        pmt.as_mt(Mm6),
-        axes,
-        size=60,
-        position=(0.5, 0.5),
-        beachball_type="full",
-        color_t=plot.mpl_color("blue"),
-        linewidth=1.0,
-    )
+    _plot_beachball(axes, Mm6, size=0.6)
     total_Mw = (2.0 / 3) * (np.log10(total_moment * 1e-7) - 9.1)
-    axes.text(0.1, 0.8, "Total MT \n Mw" + "{:0.2f}".format(total_Mw))
-    (s1, d1, r1), (s2, d2, r2) = pmt.as_mt(Mm6).both_strike_dip_rake()
-    axes.text(0.1, 0.1, "s1/d1/r1: %d, %d, %d" % (s1, d1, r1), fontsize=5)
-    axes.text(0.1, 0.05, "s2/d2/r2: %d, %d, %d" % (s2, d2, r2), fontsize=5)
+    axes.text(0.1, 0.92, "Total MT \n Mw" + "{:0.2f}".format(total_Mw))
+
+    np1, (s2, d2, r2) = _planes_from_mt6(Mm6)
+    axes.text(0.1, 0.07, "s1/d1/r1: %d, %d, %d" % (np1.strike, np1.dip, np1.rake), fontsize=5)
+    axes.text(0.1, 0.02, "s2/d2/r2: %d, %d, %d" % (s2, d2, r2), fontsize=5)
     print("Total Mw:", total_Mw)
-    print("Total MT:", Mm6)
+    print("Total MT:", Mm6.tolist())
     plt.savefig(directory / "Cumulative_Moment_Tensor.png")
     plt.close()
     return
-
 
 def plot_beachball(
     segments: dict,

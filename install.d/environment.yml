@@ -24,5 +24,4 @@ dependencies:
   - tornado>=6.5.8
   - typer
   - pip:
-      - pyrocko
       - poethepoet
